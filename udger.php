@@ -65,7 +65,13 @@ class Parser
      * md5 hash file name
      * @type string
      */
-    protected static $md5_filename = '/udgerdb_dat.md5';   
+    protected static $md5_filename = '/udgerdb_dat.md5';  
+    
+    /**
+     * resources URL.
+     * @type string
+     */
+    protected static $resources_url = 'https://udger.com/resources/ua-list/';
     
     /**
      * Path to store data file downloads to.
@@ -171,7 +177,7 @@ class Parser
                 $botInfoUA = true;
                 $botName   = $r["name"];
                 $botfamily = $r["family"];
-                $botURL    = "https://udger.com/resources/ua-list/bot-detail?bot=".$r['family'];
+                $botURL    = self::$resources_url."bot-detail?bot=".$r['family'];
             }
        }
        if ($ip) {
@@ -184,7 +190,7 @@ class Parser
                    $harmony = true;
                }
                $botName   = $r["name"];
-               $botURL    = "https://udger.com/resources/ua-list/bot-detail?bot=".$r['family'];
+               $botURL    = self::$resources_url."bot-detail?bot=".$r['family'];
            }
        }
        
@@ -243,7 +249,7 @@ class Parser
         $info["os_udger_url"]     = "";
         $info["device_name"]      = "Personal computer";
         $info["device_icon"]      = "desktop.png";
-        $info["device_udger_url"] = "https://udger.com/resources/ua-list/device-detail?device=Personal%20computer";
+        $info["device_udger_url"] = self::$resources_url."device-detail?device=Personal%20computer";
         
         $fragments=array();
         
@@ -267,10 +273,10 @@ class Parser
 		$info["ua_company"]       = $r["company"];
 		$info["ua_company_url"]   = $r["url_company"];
 		$info["ua_icon"]          = $r["icon"];
-                $info["ua_udger_url"]     = "https://udger.com/resources/ua-list/bot-detail?bot=".$r["family"];
+                $info["ua_udger_url"]     = self::$resources_url."bot-detail?bot=".$r["family"];
                 $info["device_name"]      = "Other";
                 $info["device_icon"]      = "other.png";
-                $info["device_udger_url"] = "https://udger.com/resources/ua-list/device-detail?device=Other";
+                $info["device_udger_url"] = self::$resources_url."device-detail?device=Other";
              
                 return array('flag'      => 1, 
                              'info'      => $info,
@@ -300,7 +306,7 @@ class Parser
 		$info["ua_company_url"]   = $r["company_url"];
 		$info["ua_icon"]          = $r["icon"];
                 $info["ua_engine"]        = $r["engine"];
-                $info["ua_udger_url"]     = "https://udger.com/resources/ua-list/browser-detail?browser=".$r["name"];
+                $info["ua_udger_url"]     = self::$resources_url."browser-detail?browser=".$r["name"];
                 
                 break;
             }
@@ -334,7 +340,7 @@ class Parser
             $info["os_company"]       = $r["company"];
             $info["os_company_url"]   = $r["company_url"];
             $info["os_icon"]          = $r["icon"];
-            $info["os_udger_url"]     = "https://udger.com/resources/ua-list/os-detail?os=".$r["name"];
+            $info["os_udger_url"]     = self::$resources_url."os-detail?os=".$r["name"];
         }
         
         
@@ -354,7 +360,7 @@ class Parser
             
             $info["device_name"]      = $r["name"];
             $info["device_icon"]      = $r["icon"];
-            $info["device_udger_url"] = "https://udger.com/resources/ua-list/device-detail?device=".$r["name"];
+            $info["device_udger_url"] = self::$resources_url."device-detail?device=".$r["name"];
             
         }
         else if($info["type"]=="Mobile Browser")
@@ -362,7 +368,14 @@ class Parser
             $this->debug("parse: device set by ua type - Mobile Browser");
             $info["device_name"]      = "Smartphone";
             $info["device_icon"]      = "phone.png";
-            $info["device_udger_url"] = "https://udger.com/resources/ua-list/device-detail?device=Smartphone";
+            $info["device_udger_url"] = self::$resources_url."device-detail?device=Smartphone";
+        }
+        else if($info["type"]=="Library" || $info["type"]=="Validator" || $info["type"]=="Other" || $info["type"]=="Useragent Anonymizer")
+        {
+            $this->debug("parse: device set by ua type");
+            $info["device_name"]      = "Other";
+            $info["device_icon"]      = "other.png";
+            $info["device_udger_url"] = self::$resources_url."device-detail?device=Other";
         }
         
         $this->debug("parse: uptodate");
