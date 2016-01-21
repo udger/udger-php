@@ -824,6 +824,7 @@ class Parser
     protected function debug($msg)
     {
         if ($this->debug) {
+            $htmlNL = '';
             if(isset($_SERVER['SERVER_SOFTWARE']))
                $htmlNL = '<br />';
             $micro = date('Y-m-d\TH:i:s') . substr(microtime(), 1, 9);
