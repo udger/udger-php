@@ -1,0 +1,17 @@
+{
+    "name": "udger/udger-php",
+    "description": "PHP client for https://udger.com/products/local_parser",
+    "authors": [
+        {
+            "name": "The Udger.com Team",
+            "email": "info@udger.com"
+        }
+    ],
+    "type": "library",
+    "license": "GNU (LGPL v.3)",
+    "require": {},
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {"Udger\\": "src/"}
+    }
+}
