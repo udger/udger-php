@@ -1,7 +1,6 @@
 <?php
 
-// Loads the class
-require '../udger.php';
+require_once dirname(__DIR__) . '/vendor/autoload.php';
 
 // creates a new UdgerParser object
 $parser = new Udger\Parser(true); // Development/Debug

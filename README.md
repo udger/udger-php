@@ -16,7 +16,7 @@ You should review the included examples (`parse.php`, `isbot.php`, `account.php`
 Here's a quick example:
 
 ```php
-require 'udger.php';
+require_once __DIR__ . '/vendor/autoload.php';
 $parser = new Udger\Parser();
 $parser->SetDataDir(sys_get_temp_dir() . "/udgercache/");
 $parser->SetAccessKey('XXXXXX');
