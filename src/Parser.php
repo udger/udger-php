@@ -6,7 +6,7 @@
  *
  * @package    UdgerParser
  * @author     The Udger.com Team (info@udger.com)
- * @version    1.2
+ * @version    1.3.0
  * @license    http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License
  * @link       http://udger.com/products/local_parser
  */
