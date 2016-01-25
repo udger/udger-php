@@ -259,6 +259,8 @@ class Parser
         $uptodate["ver"]          = ""; 
         $uptodate["url"]          = ""; 
         
+        $browser_id = null;
+        
         // parse
         $this->debug("parse: bot");
         $q = $this->dbdat->query("SELECT name,family,url,company,url_company,icon FROM c_robots where md5='".md5($useragent)."'");
@@ -314,7 +316,7 @@ class Parser
         
         $this->debug("parse: os");
         $os_id = 0;
-        if($browser_id) {
+        if(!is_null($browser_id)) {
             $q = $this->dbdat->query("SELECT os FROM c_browser_os where browser=".$browser_id."");
             if($r=$q->fetchArray(SQLITE3_ASSOC)) {
                 $os_id = $r["os"];
@@ -416,7 +418,7 @@ class Parser
     protected function parseFragments($useragent)
     {
         $fr = $this->getFragments($useragent);
-        
+        $ret = array('detail' => '');
         $this->debug("parse: fragments parse");
         for ($fi=0; $fi<count($fr); $fi++) {
                 $f=$fr[$fi];
@@ -500,11 +502,10 @@ class Parser
                                             $ok=true;
                                              
                                                 $ret["detail"][$f]=$pop;
-//					  		echo $fi." ".$f." ".$fnext." ".$pop."<br />";
                                         }
                                 }
                         }
-                        if ($ok) {
+                        if ($ok === true) {
                                 continue;
                         }
                 }
