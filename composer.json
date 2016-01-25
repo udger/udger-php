@@ -9,7 +9,9 @@
     ],
     "type": "library",
     "license": "GNU (LGPL v.3)",
-    "require": {},
+    "require-dev": {
+        "codeception/codeception": "^2.1"
+    },
     "minimum-stability": "dev",
     "autoload": {
         "psr-4": {"Udger\\": "src/"}
