@@ -26,5 +26,11 @@ print_r($ret);
 echo "</pre>";
 ```
 
+### Dependencies 
+- SQLite3(http://php.net/manual/en/book.sqlite3.php)
+
+### data for parser 
+- info: https://udger.com/download/data
+
 ### Author
 The Udger.com Team (info@udger.com)
