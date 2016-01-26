@@ -18,7 +18,7 @@ class ParserTest extends \Codeception\TestCase\Test
 
     protected function _before()
     {
-        $this->parser = new \Udger\Parser();
+        $this->parser = new \Udger\Parser(true);
     }
 
     protected function _after()
@@ -57,5 +57,11 @@ class ParserTest extends \Codeception\TestCase\Test
     public function testAccount()
     {
         $this->assertNotEmpty($this->parser->account("test key"));
+    }
+    
+    public function testUpdateData()
+    {   
+        // false because access key is invalid
+        $this->assertFalse($this->parser->updateData());
     }
 }
