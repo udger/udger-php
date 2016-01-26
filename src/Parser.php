@@ -185,6 +185,10 @@ class Parser
         $botInfoUA = false;
         $botInfoIP = false;
         $harmony   = false;
+        
+        $botName   = '';
+        $botURL    = '';
+        
         if ($useragent) {
             $this->debug("isBot: test useragent '".$useragent."'");
             $q = $this->dbdat->query("SELECT name,family FROM c_robots where md5='".md5($useragent)."'");
