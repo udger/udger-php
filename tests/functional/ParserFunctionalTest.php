@@ -18,7 +18,7 @@ class ParserFunctionalTest extends \Codeception\TestCase\Test
     protected function _before()
     {
         $this->parser = new \Udger\Parser();
-        $this->parser->SetDataDir(dirname(__DIR__) . "/fixtures/udgercache/");
+        $this->parser->setDataDir(dirname(__DIR__) . "/fixtures/udgercache/");
         $this->parser->setParseFragments(true);
     }
 

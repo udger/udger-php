@@ -29,7 +29,7 @@ class ParserTest extends \Codeception\TestCase\Test
     // tests
     public function testSetDataDir()
     {
-        $this->assertTrue($this->parser->SetDataDir(sys_get_temp_dir()));
+        $this->assertTrue($this->parser->setDataDir(sys_get_temp_dir()));
     }
 
     public function testSetParseFragments()

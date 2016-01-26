@@ -22,8 +22,8 @@ Here's a quick example:
 ```php
 require_once __DIR__ . '/vendor/autoload.php';
 $parser = new Udger\Parser();
-$parser->SetDataDir(sys_get_temp_dir() . "/udgercache/");
-$parser->SetAccessKey('XXXXXX');
+$parser->setDataDir(sys_get_temp_dir() . "/udgercache/");
+$parser->setAccessKey('XXXXXX');
 $ret = $parser->parse('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36');
 echo "<pre>";
 print_r($ret);

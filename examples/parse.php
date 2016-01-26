@@ -7,10 +7,10 @@ $parser = new Udger\Parser(true); // Development/Debug
 //$parser = new Udger\Parser(); // Production
 
 // set data dir (this php script must right write to cache dir)
-$parser->SetDataDir(sys_get_temp_dir() . "/udgercache/");
+$parser->setDataDir(sys_get_temp_dir() . "/udgercache/");
 
 // set You Acceskey (see https://udger.com/account/main) 
-//$parser->SetAccessKey('XXXXXX'); 
+//$parser->setAccessKey('XXXXXX'); 
 // or download the data manually from http://data.udger.com/[ACCESS_KEY]/udgerdb.dat
 
 //If you want information about fragments
