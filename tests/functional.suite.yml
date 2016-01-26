@@ -1,0 +1,4 @@
+class_name: FunctionalGuy
+modules:
+    enabled:
+        - \Helper\Functional
