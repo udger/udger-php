@@ -9,6 +9,10 @@
     ],
     "type": "library",
     "license": "GNU (LGPL v.3)",
+    "require":{
+      "php": ">=5.3.0",
+      "ext-sqlite3": "*"
+    },
     "require-dev": {
         "codeception/codeception": "^2.1"
     },
