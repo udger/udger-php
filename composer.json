@@ -1,6 +1,6 @@
 {
     "name": "udger/udger-php",
-    "description": "PHP client for https://udger.com/products/local_parser",
+    "description": "PHP agent string parser based on Udger https://udger.com/products/local_parser",
     "authors": [
         {
             "name": "The Udger.com Team",
