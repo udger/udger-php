@@ -19,8 +19,5 @@ $parser->setAccessKey('XXXXXX');
 // Update agents data
 $ret = $parser->updateData();
 
-echo "<pre>";
-print_r($ret);
-echo "</pre>\n";
 
 ?>
