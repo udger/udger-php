@@ -6,7 +6,6 @@
  *
  * @package    UdgerParser
  * @author     The Udger.com Team (info@udger.com)
- * @version    1.2
  * @license    http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License
  * @link       http://udger.com/products/local_parser
  */
@@ -24,6 +23,12 @@ class Parser
      * @type integer
      */
     protected $updateInterval = 86400; // in seconds - 86400 is 1 day
+    
+    /**
+     * True to activate automatic db updates
+     * @type boolean
+     */
+    protected $autoUpdate = true;
 
     /**
      * Whether debug output is enabled.
@@ -136,6 +141,16 @@ class Parser
         $this->debug("account: completed");
         return json_decode($result, true);        
     }
+    
+    /**
+     * Update agents database
+     * @return boolean
+     */
+    public function updateData()
+    {
+        return $this->checkDBdat();
+    }
+            
     /**
      * check if useragent string and/or IP address is bot
      * @param string $useragent user agent string
@@ -169,6 +184,10 @@ class Parser
         $botInfoUA = false;
         $botInfoIP = false;
         $harmony   = false;
+        
+        $botName   = '';
+        $botURL    = '';
+        
         if ($useragent) {
             $this->debug("isBot: test useragent '".$useragent."'");
             $q = $this->dbdat->query("SELECT name,family FROM c_robots where md5='".md5($useragent)."'");
@@ -259,6 +278,8 @@ class Parser
         $uptodate["ver"]          = ""; 
         $uptodate["url"]          = ""; 
         
+        $browser_id = null;
+        
         // parse
         $this->debug("parse: bot");
         $q = $this->dbdat->query("SELECT name,family,url,company,url_company,icon FROM c_robots where md5='".md5($useragent)."'");
@@ -314,7 +335,7 @@ class Parser
         
         $this->debug("parse: os");
         $os_id = 0;
-        if($browser_id) {
+        if(!is_null($browser_id)) {
             $q = $this->dbdat->query("SELECT os FROM c_browser_os where browser=".$browser_id."");
             if($r=$q->fetchArray(SQLITE3_ASSOC)) {
                 $os_id = $r["os"];
@@ -416,7 +437,7 @@ class Parser
     protected function parseFragments($useragent)
     {
         $fr = $this->getFragments($useragent);
-        
+        $ret = array('detail' => '');
         $this->debug("parse: fragments parse");
         for ($fi=0; $fi<count($fr); $fi++) {
                 $f=$fr[$fi];
@@ -500,11 +521,10 @@ class Parser
                                             $ok=true;
                                              
                                                 $ret["detail"][$f]=$pop;
-//					  		echo $fi." ".$f." ".$fnext." ".$pop."<br />";
                                         }
                                 }
                         }
-                        if ($ok) {
+                        if ($ok === true) {
                                 continue;
                         }
                 }
@@ -606,40 +626,52 @@ class Parser
         }
         if (!$this->dbdat) {
            $this->debug("Open DB file: ".$this->data_dir."/udgerdb.dat");
-           if($this->access_key) {
-                if (file_exists($this->data_dir."/udgerdb.dat")) {
-                    $this->dbdat = new \SQLite3($this->data_dir . '/udgerdb.dat');
-                    $q = @$this->dbdat->query("SELECT lastupdate,version FROM _info_ where key=1");
-                    if($q) {
-                        $r=$q->fetchArray(SQLITE3_ASSOC);
-                        $this->dbdat->close();
-                        $time = time();                    
-                        $this->debug("lastupdate time:".$r['lastupdate'].", curent time: ".$time.", update interval: ".$this->updateInterval);
-
-                        if (($r['lastupdate'] + $this->updateInterval) < $time) {
-                            $this->debug('Data is maybe outdated (local version is '.$r['version'].'), check new data from server');
-                            $this->downloadData($r['version']);
-                        } 
-                        else {
-                            $this->debug('Data is current and will be used (local version is '.$r['version'].')');
-                        }
-                    }
-                    else {
-                        $this->debug('Data is corrupted, download data');
-                        $this->downloadData();
-                    }
-                }
-                else {
-                    $this->debug('Data dir is empty, download data');
-                    $this->downloadData();
-                }
+           if(!empty($this->access_key) && $this->autoUpdate === true) {
+                $this->checkDBdat();
+           }elseif($this->autoUpdate === false){
+               $this->debug('Auto update is disabled, use existing db'); 
            }
            if (file_exists($this->data_dir . '/udgerdb.dat')) {
                $this->dbdat = new \SQLite3($this->data_dir . '/udgerdb.dat');
            }
         }
-        
-    }    
+    }
+    
+    /**
+     * Check installed DB version
+     * Trigger .dat file download if a newer version is available
+     * 
+     * @return boolean
+     */
+    protected function checkDBdat()
+    {
+        if (file_exists($this->data_dir . "/udgerdb.dat")) {
+            // check version
+            $this->dbdat = new \SQLite3($this->data_dir . '/udgerdb.dat');
+            $q = @$this->dbdat->query("SELECT lastupdate,version FROM _info_ where key=1");
+            if ($q) {
+                $r = $q->fetchArray(SQLITE3_ASSOC);
+                $this->dbdat->close();
+                $time = time();
+                $this->debug("lastupdate time:" . $r['lastupdate'] . ", curent time: " . $time . ", update interval: " . $this->updateInterval);
+
+                if (($r['lastupdate'] + $this->updateInterval) < $time) {
+                    $this->debug('Data is maybe outdated (local version is ' . $r['version'] . '), check new data from server');
+                    return $this->downloadData($r['version']);
+                } else {
+                    $this->debug('Data is current and will be used (local version is ' . $r['version'] . ')');
+                    return true;
+                }
+            } else {
+                $this->debug('Data is corrupted, download data');
+                return $this->downloadData();
+            }
+        } else {
+            $this->debug('Data dir is empty, download data');
+            return $this->downloadData();
+        }
+    }
+
     /**
      * Download new data.
      * @param string $version local data version
@@ -648,7 +680,7 @@ class Parser
     protected function downloadData($version = "")
     {     
          $status = false;
-         
+        
         // support for fopen is needed
         if (!ini_get('allow_url_fopen')) {
             $this->debug('php fopen unavailable, download the data manually from http://data.udger.com/');
@@ -770,9 +802,9 @@ class Parser
             }
         } 
         else {
-            $this->debug('Opening URL failed: '. $url.' - Error: '.$http_response_header[0]);
+            $this->debug('Opening URL failed: '. $url.' - Error: '.@$http_response_header[0]);
         }
-        return array($http_response_header[0], $data);
+        return array(@$http_response_header[0], $data);
     }
     /**
      * Set the data directory.
@@ -817,6 +849,22 @@ class Parser
         $this->parse_fragments = $parse_fragments;
         return true;
     }
+    
+    /**
+     * Set auto update: true to activate updates
+     * 
+     * @param string
+     * @return bool
+     */
+    public function setAutoUpdate($value)
+    {
+        if (is_bool($value) === true){
+            $this->autoUpdate = $value;
+            return true;
+        }
+        return false;
+    }
+    
     /**
      * Output a time-stamped debug message if debugging is enabled
      * @param string $msg
