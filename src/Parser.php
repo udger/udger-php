@@ -48,7 +48,7 @@ class Parser implements ParserInterface
      * api URL.
      * @type string
      */
-    protected static $api_url = 'https://api.udger.com';
+    protected static $api_url = 'http://api.udger.com/v3/';
     
     /**
      * base URL udger data.
