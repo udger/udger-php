@@ -267,7 +267,7 @@ class Parser
             // crawler            
             $q = $this->dbdat->query("SELECT name,ver,ver_major,last_seen,respect_robotstxt,family,family_code,family_homepage,family_icon,vendor,vendor_code,vendor_homepage,crawler_classification,crawler_classification_code
                                           FROM udger_crawler_list
-                                          JOIN udger_crawler_class ON udger_crawler_class.id=udger_crawler_list.class_id
+                                          LEFT JOIN udger_crawler_class ON udger_crawler_class.id=udger_crawler_list.class_id
                                           WHERE ua_string='".$this->ua."'");
 
             if($r=$q->fetchArray(SQLITE3_ASSOC)) {
