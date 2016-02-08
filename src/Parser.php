@@ -263,6 +263,8 @@ class Parser
             $os_id          =0;
             $deviceclass_id =0;
             $ret['user_agent']['ua_string'] = $this->ua;
+            $ret['user_agent']['ua_class'] = 'Unrecognized';
+            $ret['user_agent']['ua_class_code'] = 'unrecognized';        
         
             // crawler            
             $q = $this->dbdat->query("SELECT name,ver,ver_major,last_seen,respect_robotstxt,family,family_code,family_homepage,family_icon,vendor,vendor_code,vendor_homepage,crawler_classification,crawler_classification_code
