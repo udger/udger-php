@@ -422,7 +422,7 @@ class Parser
                                           JOIN udger_ip_class ON udger_ip_class.id=udger_ip_list.class_id
                                           LEFT JOIN udger_crawler_list ON udger_crawler_list.id=udger_ip_list.crawler_id
                                           LEFT JOIN udger_crawler_class ON udger_crawler_class.id=udger_crawler_list.class_id
-                                          WHERE ip_md5='".md5($this->ip)."'");
+                                          WHERE ip='".$this->ip."' ORDER BY sequence");
                 if ($r=$q->fetchArray(SQLITE3_ASSOC)) {                 
                     $ret['ip_address']['ip_classification'] = $r['ip_classification'];
                     $ret['ip_address']['ip_classification_code'] = $r['ip_classification_code'];
