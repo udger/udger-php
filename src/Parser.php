@@ -267,7 +267,7 @@ class Parser
             $ret['user_agent']['ua_class_code'] = 'unrecognized';        
         
             // crawler            
-            $q = $this->dbdat->query("SELECT name,ver,ver_major,last_seen,respect_robotstxt,family,family_code,family_homepage,family_icon,vendor,vendor_code,vendor_homepage,crawler_classification,crawler_classification_code
+            $q = $this->dbdat->query("SELECT udger_crawler_list.id as botid,name,ver,ver_major,last_seen,respect_robotstxt,family,family_code,family_homepage,family_icon,vendor,vendor_code,vendor_homepage,crawler_classification,crawler_classification_code
                                           FROM udger_crawler_list
                                           LEFT JOIN udger_crawler_class ON udger_crawler_class.id=udger_crawler_list.class_id
                                           WHERE ua_string='".$this->ua."'");
@@ -288,7 +288,7 @@ class Parser
                 $ret['user_agent']['ua_family_vendor_code'] = $r['vendor_code'];
                 $ret['user_agent']['ua_family_vendor_homepage'] = $r['vendor_homepage'];
                 $ret['user_agent']['ua_family_icon'] = $r['family_icon'];
-                $ret['user_agent']['ua_family_info_url'] = "https://udger.com/resources/ua-list/bot-detail?bot=".$r['family'];            
+                $ret['user_agent']['ua_family_info_url'] = "https://udger.com/resources/ua-list/bot-detail?bot=".$r['family']."#id".$r['botid'];            
                 $ret['user_agent']['crawler_last_seen'] = $r['last_seen'];
                 $ret['user_agent']['crawler_category'] = $r['crawler_classification'];
                 $ret['user_agent']['crawler_category_code'] = $r['crawler_classification_code'];
@@ -418,7 +418,7 @@ class Parser
             $ipver=$this->validIP($this->ip);        
             if($ipver != 0) {
                 $ret['ip_address']['ip_ver'] = $ipver;
-                $q=$this->dbdat->query("SELECT ip_last_seen,ip_hostname,ip_country,ip_city,ip_country_code,ip_classification,ip_classification_code,
+                $q=$this->dbdat->query("SELECT udger_crawler_list.id as botid,ip_last_seen,ip_hostname,ip_country,ip_city,ip_country_code,ip_classification,ip_classification_code,
                                           name,ver,ver_major,last_seen,respect_robotstxt,family,family_code,family_homepage,family_icon,vendor,vendor_code,vendor_homepage,crawler_classification,crawler_classification_code
                                           FROM udger_ip_list
                                           JOIN udger_ip_class ON udger_ip_class.id=udger_ip_list.class_id
@@ -445,7 +445,7 @@ class Parser
                     $ret['ip_address']['crawler_family_vendor_homepage'] = $r['vendor_homepage'];
                     $ret['ip_address']['crawler_family_icon'] = $r['family_icon'];
                     if($r['ip_classification_code'] == 'crawler') {
-                        $ret['ip_address']['crawler_family_info_url'] = "https://udger.com/resources/ua-list/bot-detail?bot=".$r['family'];
+                        $ret['ip_address']['crawler_family_info_url'] = "https://udger.com/resources/ua-list/bot-detail?bot=".$r['family']."#id".$r['botid'];
                     }
                     $ret['ip_address']['crawler_last_seen'] = $r['last_seen'];
                     $ret['ip_address']['crawler_category'] = $r['crawler_classification'];
