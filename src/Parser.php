@@ -317,10 +317,16 @@ class Parser
                 $r=$q->fetchArray(SQLITE3_ASSOC);
                 $qType = $this->dbdat->query("SELECT name FROM c_browser_type WHERE type=".$r["type"]." ");
                 $rType=$qType->fetchArray(SQLITE3_ASSOC);
-                
+               
+		$ua_ver = isset($result[1]) ? $result[1] : "";
+		$ua_name = $r["name"];
+		if (!empty($ua_ver)){
+			$ua_name .= " " . $ua_ver;		
+		}
+
                 $info["type"]             = $rType["name"];
-                $info["ua_name"]          = $r["name"]." ".$result[1];
-                $info["ua_ver"]           = $result[1];
+                $info["ua_name"]          = $ua_name;
+                $info["ua_ver"]           = $ua_ver;
 		$info["ua_family"]        = $r["name"];
 		$info["ua_url"]           = $r["url"];
 		$info["ua_company"]       = $r["company"];
