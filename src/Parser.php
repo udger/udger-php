@@ -252,7 +252,10 @@ class Parser
                       'crawler_last_seen'             => '',
                       'crawler_category'              => '', 
                       'crawler_category_code'         => '', 
-                      'crawler_respect_robotstxt'     => ''
+                      'crawler_respect_robotstxt'     => '',
+                      'datacenter_name'               => '',
+                      'datacenter_name_code'          => '',
+                      'datacenter_homepage'           => ''
                        )
         );
         
@@ -413,10 +416,15 @@ class Parser
         }
         
         if($this->ip) {
-            $this->debug("parse IP address: START (useragent: ".$this->ip.")");
+            $this->debug("parse IP address: START (IP: ".$this->ip.")");
             $ret['ip_address']['ip'] = $this->ip;
             $ipver=$this->validIP($this->ip);        
             if($ipver != 0) {
+                if($ipver == 6) {
+                    $this->ip = inet_ntop(inet_pton($this->ip));
+                    $this->debug("compress IP address is:" . $this->ip);
+                }
+
                 $ret['ip_address']['ip_ver'] = $ipver;
                 $q=$this->dbdat->query("SELECT udger_crawler_list.id as botid,ip_last_seen,ip_hostname,ip_country,ip_city,ip_country_code,ip_classification,ip_classification_code,
                                           name,ver,ver_major,last_seen,respect_robotstxt,family,family_code,family_homepage,family_icon,vendor,vendor_code,vendor_homepage,crawler_classification,crawler_classification_code
@@ -455,6 +463,17 @@ class Parser
                 else {            
                     $ret['ip_address']['ip_classification'] = 'Unrecognized';
                     $ret['ip_address']['ip_classification_code'] = 'unrecognized';               
+                }
+                if($ret['ip_address']['ip_ver'] == '4') {
+                $q=$this->dbdat->query("select name,name_code,homepage 
+                                       FROM udger_datacenter_range
+                                       JOIN udger_datacenter_list ON udger_datacenter_range.datacenter_id=udger_datacenter_list.id
+                                       where iplong_from < ".ip2long($ret['ip_address']['ip'])." AND iplong_to > ".ip2long($ret['ip_address']['ip'])." ");
+                if ($r=$q->fetchArray(SQLITE3_ASSOC)) {
+                    $ret['ip_address']['datacenter_name'] = $r['name'];
+                    $ret['ip_address']['datacenter_name_code'] = $r['name_code'];
+                    $ret['ip_address']['datacenter_homepage'] = $r['homepage'];
+                }
                 }
             }
             
@@ -733,26 +752,28 @@ class Parser
      * @return integer
      */
     protected function validIP($ip) {
-    if (substr_count($ip,":") < 1) {
-        if(filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-           $this->debug("parse IP address: IP ver 4)");
-           return 4;
+        if (substr_count($ip,":") < 1) {
+            if(filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+               $this->debug("parse IP address: IP ver 4)");
+               return 4;
+            }
+            else {
+                $this->debug("parse IP address: IP not valid)");
+                return 0;
+            }
         }
         else {
-            $this->debug("parse IP address: IP not valid)");
-            return 0;
+             if(filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+               $this->debug("parse IP address: IP ver 6");
+               return 6;
+            }
+            else {
+                $this->debug("parse IP address: IP not valid)");
+                return 0;
+            }
         }
+    
     }
-    else {
-         if(filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
-           $this->debug("parse IP address: IP ver 6)");
-           return 6;
-        }
-        else {
-            $this->debug("parse IP address: IP not valid)");
-            return 0;
-        }
-    }
-}
+    
    
 }
