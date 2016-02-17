@@ -466,7 +466,7 @@ class Parser
                                                 }
                                         
                                         if ($r["regstring2"]) {
-                                                $fnext=$fr[$fi+1];
+                                                $fnext=@$fr[$fi+1];
                                                 if (@preg_match($r["regstring2"],$fnext,$vys2)) {
                                                         $i=1;
                                                         if(count($vys2) > 1) {
@@ -478,7 +478,7 @@ class Parser
                                                             }
                                                         }
                                                         if ($r["regstring3"]) {
-                                                                $fnext2=$fr[$fi+2];
+                                                                $fnext2=@$fr[$fi+2];
                                                                 if (@preg_match($r["regstring3"],$fnext2,$vys3)) {
                                                                         $i=1;
                                                                         if(count($vys3) > 1) {
@@ -491,7 +491,7 @@ class Parser
                                                                         }
 
                                                                         if ($r["regstring4"]) {
-                                                                                $fnext3=$fr[$fi+3];
+                                                                                $fnext3=@$fr[$fi+3];
                                                                                 if (@preg_match($r["regstring4"],$fnext3,$vys4)) {
                                                                                         $i=1;
                                                                                         if(count($vys4) > 1) {
