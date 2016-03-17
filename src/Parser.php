@@ -480,7 +480,7 @@ class Parser implements ParserInterface
                 $q=$this->dbdat->query("select name,name_code,homepage 
                                        FROM udger_datacenter_range
                                        JOIN udger_datacenter_list ON udger_datacenter_range.datacenter_id=udger_datacenter_list.id
-                                       where iplong_from < ".ip2long($ret['ip_address']['ip'])." AND iplong_to > ".ip2long($ret['ip_address']['ip'])." ");
+                                       where iplong_from <= ".ip2long($ret['ip_address']['ip'])." AND iplong_to >= ".ip2long($ret['ip_address']['ip'])." ");
                 if ($r=$q->fetchArray(SQLITE3_ASSOC)) {
                     $ret['ip_address']['datacenter_name'] = $r['name'];
                     $ret['ip_address']['datacenter_name_code'] = $r['name_code'];
