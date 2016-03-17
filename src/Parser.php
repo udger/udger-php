@@ -315,10 +315,19 @@ class Parser implements ParserInterface
                         $client_class_id=$r['class_id'];
                         $ret['user_agent']['ua_class'] = $r['client_classification'];
                         $ret['user_agent']['ua_class_code'] = $r['client_classification_code'];
-                        $ret['user_agent']['ua'] = $r['name']." ".$result[1];                    
-                        $ret['user_agent']['ua_version'] = $result[1];
-                        $ver_major = explode(".", $result[1]);
-                        $ret['user_agent']['ua_version_major'] = $ver_major[0];
+                        if(isset($result[1])
+                        {
+                            $ret['user_agent']['ua'] = $r['name']." ".$result[1];
+                            $ret['user_agent']['ua_version'] = $result[1];
+                            $ver_major = explode(".", $result[1]);
+                            $ret['user_agent']['ua_version_major'] = $ver_major[0];
+                        }
+                        else
+                        {
+                            $ret['user_agent']['ua'] = $r['name'];
+                            $ret['user_agent']['ua_version'] = '';
+                            $ret['user_agent']['ua_version_major'] = '';
+                        }
                         $ret['user_agent']['ua_uptodate_current_version'] = $r['uptodate_current_version'];
                         $ret['user_agent']['ua_family'] = $r['name'];
                         $ret['user_agent']['ua_family_code'] = $r['name_code'];
