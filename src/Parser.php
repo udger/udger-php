@@ -307,9 +307,8 @@ class Parser
         }
         
         $this->debug("parse: browser");
-        $q = $this->dbdat->query("SELECT browser, regstring FROM reg_browser ORDER by sequence ASC");
-        while ($r=$q->fetchArray(SQLITE3_ASSOC)) {
-            if (@preg_match($r["regstring"],$useragent,$result)) {
+        foreach ($this->browserReg as $r) {
+            if (preg_match($r["regstring"],$useragent,$result)) {
                 $browser_id = $r["browser"];
                 $this->debug("parse: browser found (id: ".$browser_id.")");
                 
@@ -349,9 +348,8 @@ class Parser
             }
         }
         if(!$os_id) {
-            $q = $this->dbdat->query("SELECT os, regstring FROM reg_os ORDER by sequence ASC");
-            while ($r=$q->fetchArray(SQLITE3_ASSOC)) {
-                if (@preg_match($r["regstring"],$useragent,$result)) {
+            foreach($this->osReg as $r) {
+                if (preg_match($r["regstring"],$useragent,$result)) {
                     $os_id = $r["os"];
                     $this->debug("parse: os found (id: ".$os_id.")");
                     break;
@@ -373,9 +371,8 @@ class Parser
         
         $this->debug("parse: device");
         $device_id = 0;
-        $q = $this->dbdat->query("SELECT device, regstring FROM reg_device ORDER by sequence ASC");
-        while ($r=$q->fetchArray(SQLITE3_ASSOC)) {
-            if (@preg_match($r["regstring"],$useragent,$result)) {
+        foreach ($this->deviceReg as $r) {
+            if (preg_match($r["regstring"],$useragent,$result)) {
                 $device_id = $r["device"];
                 $this->debug("parse: device found (id: ".$device_id.")");
                 break;
@@ -450,8 +447,7 @@ class Parser
 		
                 if ($f) { 
                         $ok=false;
-                        $q = $this->dbdat->query("SELECT note,regstring,regstring2,regstring3,regstring4 FROM reg_fragment ORDER BY sequence ASC");
-                        while ($r=$q->fetchArray(SQLITE3_ASSOC)) {
+                        foreach ($this->fragmentReg as $r) {
                                 $pop="";
                                 if (@preg_match($r["regstring"],$f,$vys)) {
                                                 $pop=$r["note"];
@@ -621,6 +617,16 @@ class Parser
         
         return $fr;        
     }
+
+    protected function fetchAll($query, $mode = SQLITE3_ASSOC) {
+        $results = array();
+        $q = $this->dbdat->query($query);
+        while ($r=$q->fetchArray(SQLITE3_ASSOC)) {
+            $results[] = $r;
+        }
+        return $results;
+    }
+
     /**
      * Open DB file 
      */
@@ -639,6 +645,12 @@ class Parser
            }
            if (file_exists($this->data_dir . '/udgerdb.dat')) {
                $this->dbdat = new \SQLite3($this->data_dir . '/udgerdb.dat');
+
+               $this->browserReg = $this->fetchAll("SELECT browser, regstring FROM reg_browser ORDER by sequence ASC");
+               $this->osReg = $this->fetchAll("SELECT os, regstring FROM reg_os ORDER by sequence ASC");
+               $this->deviceReg = $this->fetchAll("SELECT device, regstring FROM reg_device ORDER by sequence ASC");
+               $this->fragmentReg = $this->fetchAll("SELECT note,regstring,regstring2,regstring3,regstring4 FROM reg_fragment ORDER BY sequence ASC");
+
            }
         }
     }
