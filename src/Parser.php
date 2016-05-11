@@ -632,10 +632,6 @@ class Parser
      */
     protected function setDBdat()
     {
-        if (!file_exists($this->data_dir)) {
-            $this->debug('Data dir not found'); 
-            return false;
-        }
         if (!$this->dbdat) {
            $this->debug("Open DB file: ".$this->data_dir."/udgerdb.dat");
            if(!empty($this->access_key) && $this->autoUpdate === true) {
@@ -697,8 +693,13 @@ class Parser
      */
     protected function downloadData($version = "")
     {     
-         $status = false;
+        $status = false;
         
+        if (!file_exists($this->data_dir)) {
+            $this->debug('Data dir not found');
+            return $status;
+        }
+
         // support for fopen is needed
         if (!ini_get('allow_url_fopen')) {
             $this->debug('php fopen unavailable, download the data manually from http://data.udger.com/');
