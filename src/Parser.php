@@ -85,7 +85,7 @@ class Parser
     protected $data_dir = null;
 
     /**
-     * Personal acces key.
+     * Personal access key.
      * @type string
      */
     protected $access_key = null;
@@ -459,7 +459,7 @@ class Parser
                                                 if(count($vys) > 1) {
                                                     while ($vys[$i]) {
                                                             $pop=mb_ereg_replace("##".$i."##",$vys[$i],$pop);
-                                                            $i+=1;                                                       
+                                                            $i+=1;
                                                             if($i + 1 > count($vys))
                                                                 break;
                                                     }
@@ -834,7 +834,7 @@ class Parser
         return true;
     }    
     /**
-     * Set the cache directory.
+     * Set the account access key.
      * @param string
      * @return bool
      */
@@ -845,7 +845,7 @@ class Parser
         return true;
     }
     /**
-     * Set the cache directory.
+     * Enable/disable fragment parsing.
      * @param string
      * @return bool
      */
