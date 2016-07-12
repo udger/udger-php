@@ -16,7 +16,7 @@ namespace Udger;
  * udger.com Local Parser Class.
  * @package UdgerParser
  */
-class Parser
+class Parser implements ParserInterface
 {
     /**
      * How often to update the UAS database.
