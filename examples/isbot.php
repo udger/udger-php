@@ -14,12 +14,12 @@ $parser->setDataDir(sys_get_temp_dir() . "/udgercache/");
 // or download the data manually from http://data.udger.com/[ACCESS_KEY]/udgerdb.dat
 
 
-$useragent = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)';
-$ip = '100.43.81.130';
-// Gets information about the current user agent
-$ret = $parser->isBot($useragent, $ip);
-echo "<pre>";
-print_r($ret);
-echo "</pre>";
-
-?>
+try {
+    $useragent = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)';
+    $ip = '100.43.81.130';
+    // Gets information about the current user agent
+    $ret = $parser->isBot($useragent, $ip);
+    var_dump($ret);
+} catch (Exception $ex) {
+    echo "Error: " . $ex->getMessage() . PHP_EOL;
+}

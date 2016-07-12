@@ -18,7 +18,9 @@ class ParserTest extends \Codeception\TestCase\Test
 
     protected function _before()
     {
-        $this->parser = new \Udger\Parser(true);
+        $this->parser = new \Udger\Parser(TRUE);
+        $this->parser->setAccessKey("udger-php-unit");
+        $this->parser->setDataDir(sys_get_temp_dir());
     }
 
     protected function _after()
@@ -45,8 +47,7 @@ class ParserTest extends \Codeception\TestCase\Test
 
     public function testParse()
     {
-        $this->assertArrayHasKey("flag", $this->parser->parse("random agent"), "flag key is missing");
-        $this->assertArrayHasKey("errortext", $this->parser->parse("random agent"), "errortext key is missing");
+        $result = $this->parser->parse("random agent");
     }
 
     public function testIsBot()
@@ -55,13 +56,14 @@ class ParserTest extends \Codeception\TestCase\Test
     }
 
     public function testAccount()
-    {
-        $this->assertNotEmpty($this->parser->account("test key"));
+    {   
+        $this->setExpectedException("Exception", "incorrect accesskey");
+        $this->parser->account("test key");
     }
     
     public function testUpdateData()
     {   
         // false because access key is invalid
-        $this->assertFalse($this->parser->updateData());
+        $this->assertTrue($this->parser->updateData());
     }
 }

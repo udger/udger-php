@@ -9,8 +9,9 @@ $parser = new Udger\Parser(true); // Development/Debug
 // set You Acceskey (see https://udger.com/account/main) 
 $parser->setAccessKey('XXXXXX');
 
-$ret = $parser->account();
-echo "<pre>";
-print_r($ret);
-echo "</pre>";
-?>
+try {
+    $ret = $parser->account();
+    var_dump($ret);
+} catch (Exception $ex) {
+    echo "Error: " . $ex->getMessage() . PHP_EOL;
+}

@@ -122,17 +122,13 @@ class ParserFunctionalTest extends \Codeception\TestCase\Test
     
     public function testParseEmpty()
     {
+        $this->setExpectedException("Exception", "missing mandatory parameter");
         $result = $this->parser->parse("");
-        $this->assertEquals(1, $result["flag"]);
-        $this->assertEquals("missing mandatory parameter", $result["errortext"]);
     }
     
     public function testParseNull()
     {
+        $this->setExpectedException("Exception", "missing mandatory parameter");
         $result = $this->parser->parse(null);
-        $this->assertEquals(1, $result["flag"]);
-        $this->assertEquals("missing mandatory parameter", $result["errortext"]);
     }
-    
-    
 }

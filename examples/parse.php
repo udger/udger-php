@@ -17,11 +17,11 @@ $parser->setDataDir(sys_get_temp_dir() . "/udgercache/");
 $parser->setParseFragments(true);
 
 
-$useragent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36';
-// Gets information about the current user agent
-$ret = $parser->parse($useragent);
-echo "<pre>";
-print_r($ret);
-echo "</pre>";
-
-?>
+try {
+    $useragent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36';
+    // Gets information about the current user agent
+    $ret = $parser->parse($useragent);
+    var_dump($ret);
+} catch (Exception $ex) {
+    echo "Error: " . $ex->getMessage(). PHP_EOL;
+}

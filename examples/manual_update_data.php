@@ -17,10 +17,9 @@ $parser->setAccessKey('XXXXXX');
 // or download the data manually from http://data.udger.com/[ACCESS_KEY]/udgerdb.dat
 
 // Update agents data
-$ret = $parser->updateData();
-
-echo "<pre>";
-print_r($ret);
-echo "</pre>\n";
-
-?>
+try {
+    $ret = $parser->updateData();
+    var_dump($ret);
+} catch (Exception $ex) {
+    echo "Error: " . $ex->getMessage();
+}

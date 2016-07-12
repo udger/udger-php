@@ -24,17 +24,26 @@ class ParserAccountTest extends \Codeception\TestCase\Test
         $parser = new \Udger\Parser();
         $parser->setAccessKey("nosuchkey");
         
-        $result = $parser->account();
-        $this->assertEquals(1, $result["flag"]);
-        $this->assertEquals("incorrect accesskey", $result["errortext"]);
+        $this->setExpectedException("Exception", "incorrect accesskey");
+        $parser->account();
     }
     
     public function testAccountMissingKey()
     {
         $parser = new \Udger\Parser();
         
+        $this->setExpectedException("Exception", "access key not set");
+        $parser->account();
+    }
+    
+    public function testAccountValidKey()
+    {
+        $parser = new \Udger\Parser();
+        $parser->setAccessKey("94a4d5510a30ef2e367b27761ebc765b");
+        
         $result = $parser->account();
-        $this->assertEquals(2, $result["flag"]);
-        $this->assertEquals("access key not set", $result["errortext"]);
+        $this->assertArrayHasKey('flag', $result); // TODO: should be deprecated soon
+        $this->assertArrayHasKey('LocalParser', $result);
+        $this->assertArrayHasKey('CloudParser', $result);
     }
 }

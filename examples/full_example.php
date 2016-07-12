@@ -16,27 +16,23 @@ $parser->setDataDir(sys_get_temp_dir() . "/udgercache/");
 //If you want information about fragments
 $parser->setParseFragments(true);
 
-//method "parse"
-$useragent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36';
-// Gets information about the current user agent
-$ret = $parser->parse($useragent);
-echo "<pre>";
-print_r($ret);
-echo "</pre>\n";
+try {
+    //method "parse"
+    $useragent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36';
+    // Gets information about the current user agent
+    $ret = $parser->parse($useragent);
+    var_dump($ret);
 
-//method "isBot"
-$useragent = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)';
-$ip = '100.43.81.130';
-// Gets information about the current user agent
-$ret = $parser->isBot($useragent, $ip);
-echo "<pre>";
-print_r($ret);
-echo "</pre>\n";
-
-//method "account"
-$ret = $parser->account();
-echo "<pre>";
-print_r($ret);
-echo "</pre>\n";
-
-?>
+    //method "isBot"
+    $useragent = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)';
+    $ip = '100.43.81.130';
+    // Gets information about the current user agent
+    $ret = $parser->isBot($useragent, $ip);
+    var_dump($ret);
+    
+    //method "account"
+    $ret = $parser->account();
+    var_dump($ret);
+} catch (Exception $ex) {
+    echo "Error: " . $ex->getMessage() . PHP_EOL;
+}

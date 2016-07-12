@@ -46,37 +46,37 @@ class Parser
      * api URL.
      * @type string
      */
-    protected static $api_url = 'http://api.udger.com/';
+    protected static $api_url = 'https://api.udger.com';
     
     /**
      * base URL udger data.
      * @type string
      */
-    protected static $base_url = 'http://data.udger.com/';
+    protected static $base_url = 'https://data.udger.com';
     
     /**
      * version file name
      * @type string
      */
-    protected static $ver_filename = '/version';
+    protected static $ver_filename = 'version';
     
     /**
      * data file name
      * @type string
      */
-    protected static $data_filename = '/udgerdb.dat';  
+    protected static $data_filename = 'udgerdb.dat';  
     
     /**
      * md5 hash file name
      * @type string
      */
-    protected static $md5_filename = '/udgerdb_dat.md5';  
+    protected static $md5_filename = 'udgerdb_dat.md5';  
     
     /**
      * resources URL.
      * @type string
      */
-    protected static $resources_url = 'https://udger.com/resources/ua-list/';
+    protected static $resources_url = 'https://udger.com/resources/ua-list';
     
     /**
      * Path to store data file downloads to.
@@ -112,34 +112,39 @@ class Parser
 
     /**
      * check your subscription
+     * 
      * @return array
      */
     public function account()    
     {   
         $this->debug("account: start");
-        if(!$this->access_key) {
-            $this->debug("account: access key not set, return");
-            return array('flag'      => 2, 
-                         'errortext' => 'access key not set');
-        } 
-        $options = array(
-            'http' => array(
-                'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
-                'method'  => 'POST',
-                'content' => http_build_query(array('accesskey' => $this->access_key)),
-                'timeout' => $this->timeout
-            ),
-        );
-        $context  = stream_context_create($options);
-        $this->debug("account: send query to ".self::$api_url."account");
-        $result = @file_get_contents(self::$api_url."account", false, $context);	
-        if(!$result) {
-            $this->debug("account: connection error");
-            return array('flag'      => 3, 
-                         'errortext' => 'connection error');
+        
+        if(empty($this->access_key)) {
+            throw new \Exception("access key not set");
         }
-        $this->debug("account: completed");
-        return json_decode($result, true);        
+        
+        $accountUrl = sprintf("%s/%s", self::$api_url, "account");
+        $client = new \GuzzleHttp\Client();
+        
+        $result = $client->post($accountUrl, array(
+            'multipart' => array(
+                array(
+                    'name' => 'accesskey',
+                    'contents' => $this->access_key
+                )
+            ),
+            'timeout' => $this->timeout
+        ));
+        
+        $contents = $result->getBody()->getContents();        
+        $data = json_decode($contents, true);
+        
+        // check for non zero staus codes
+        if(isset($data['flag']) && $data['flag'] > 0){
+            throw new \Exception($data['errortext']);
+        }
+        
+        return $data;        
     }
     
     /**
@@ -163,20 +168,17 @@ class Parser
         
         $this->debug("isBot: start");
         // validate
-        if (!$this->dbdat) {
+        if (empty($this->dbdat)) {
             $this->debug('Data file not found, download the data manually from http://data.udger.com/');
-            return array('flag'      => 3, 
-                         'errortext' => 'data file not found');
+            throw new \Exception('data file not found');
         }
-        if (!$useragent and !$ip) {
-            $this->debug('isBot: Missing mandatory parameter');
-            return array('flag'      => 1, 
-                         'errortext' => 'missing mandatory parameter\'s');
+        
+        if (empty($useragent) && empty($ip)) {
+            throw new \Exception('missing mandatory parameters');
         }
-        if ($ip and !$this->validIP($ip)) {
-            $this->debug('isBot: IP address is not valid');
-            return array('flag'      => 2, 
-                         'errortext' => 'ip address is not valid');
+        
+        if (!empty($ip) &&  (false === $this->validIP($ip))) {
+            throw new \Exception('ip address is not valid');
         }
         
         // check
@@ -196,7 +198,7 @@ class Parser
                 $botInfoUA = true;
                 $botName   = $r["name"];
                 $botfamily = $r["family"];
-                $botURL    = self::$resources_url."bot-detail?bot=".$r['family'];
+                $botURL    = self::$resources_url."/bot-detail?bot=".$r['family'];
             }
        }
        if ($ip) {
@@ -209,7 +211,7 @@ class Parser
                    $harmony = true;
                }
                $botName   = $r["name"];
-               $botURL    = self::$resources_url."bot-detail?bot=".$r['family'];
+               $botURL    = self::$resources_url."/bot-detail?bot=".$r['family'];
            }
        }
        
@@ -236,15 +238,14 @@ class Parser
         $this->debug("parse: start (useragent:".$useragent.")");
          
         // validate
-        if (!$this->dbdat) {
+        if (empty($this->dbdat)) {
             $this->debug('Data file not found, download the data manually from http://data.udger.com/');
-            return array('flag'      => 3, 
-                         'errortext' => 'data file not found');
+            throw new \Exception("data file not found");
         }
-        if (!$useragent) {
+        
+        if (empty($useragent)) {
             $this->debug('parse: Missing mandatory parameter');
-            return array('flag'      => 1, 
-                         'errortext' => 'missing mandatory parameter');
+            throw new \Exception("missing mandatory parameter");
         }
         
         //def values
@@ -268,7 +269,7 @@ class Parser
         $info["os_udger_url"]     = "";
         $info["device_name"]      = "Personal computer";
         $info["device_icon"]      = "desktop.png";
-        $info["device_udger_url"] = self::$resources_url."device-detail?device=Personal%20computer";
+        $info["device_udger_url"] = self::$resources_url."/device-detail?device=Personal%20computer";
         
         $fragments=array();
         
@@ -294,10 +295,10 @@ class Parser
 		$info["ua_company"]       = $r["company"];
 		$info["ua_company_url"]   = $r["url_company"];
 		$info["ua_icon"]          = $r["icon"];
-                $info["ua_udger_url"]     = self::$resources_url."bot-detail?bot=".$r["family"];
+                $info["ua_udger_url"]     = self::$resources_url."/bot-detail?bot=".$r["family"];
                 $info["device_name"]      = "Other";
                 $info["device_icon"]      = "other.png";
-                $info["device_udger_url"] = self::$resources_url."device-detail?device=Other";
+                $info["device_udger_url"] = self::$resources_url."/device-detail?device=Other";
              
                 return array('flag'      => 1, 
                              'info'      => $info,
@@ -332,7 +333,7 @@ class Parser
 		$info["ua_company_url"]   = $r["company_url"];
 		$info["ua_icon"]          = $r["icon"];
                 $info["ua_engine"]        = $r["engine"];
-                $info["ua_udger_url"]     = self::$resources_url."browser-detail?browser=".$r["name"];
+                $info["ua_udger_url"]     = self::$resources_url."/browser-detail?browser=".$r["name"];
                 
                 break;
             }
@@ -365,7 +366,7 @@ class Parser
             $info["os_company"]       = $r["company"];
             $info["os_company_url"]   = $r["company_url"];
             $info["os_icon"]          = $r["icon"];
-            $info["os_udger_url"]     = self::$resources_url."os-detail?os=".$r["name"];
+            $info["os_udger_url"]     = self::$resources_url."/os-detail?os=".$r["name"];
         }
         
         
@@ -384,7 +385,7 @@ class Parser
             
             $info["device_name"]      = $r["name"];
             $info["device_icon"]      = $r["icon"];
-            $info["device_udger_url"] = self::$resources_url."device-detail?device=".$r["name"];
+            $info["device_udger_url"] = self::$resources_url."/device-detail?device=".$r["name"];
             
         }
         else if($info["type"]=="Mobile Browser")
@@ -392,14 +393,14 @@ class Parser
             $this->debug("parse: device set by ua type - Mobile Browser");
             $info["device_name"]      = "Smartphone";
             $info["device_icon"]      = "phone.png";
-            $info["device_udger_url"] = self::$resources_url."device-detail?device=Smartphone";
+            $info["device_udger_url"] = self::$resources_url."/device-detail?device=Smartphone";
         }
         else if($info["type"]=="Library" || $info["type"]=="Validator" || $info["type"]=="Other" || $info["type"]=="Useragent Anonymizer")
         {
             $this->debug("parse: device set by ua type");
             $info["device_name"]      = "Other";
             $info["device_icon"]      = "other.png";
-            $info["device_udger_url"] = self::$resources_url."device-detail?device=Other";
+            $info["device_udger_url"] = self::$resources_url."/device-detail?device=Other";
         }
         
         $this->debug("parse: uptodate");
@@ -639,8 +640,8 @@ class Parser
            }elseif($this->autoUpdate === false){
                $this->debug('Auto update is disabled, use existing db'); 
            }
-           if (file_exists($this->data_dir . '/udgerdb.dat')) {
-               $this->dbdat = new \SQLite3($this->data_dir . '/udgerdb.dat');
+           if (file_exists($this->getDatFilePath())) {
+               $this->dbdat = new \SQLite3($this->getDatFilePath());
 
                $this->browserReg = $this->fetchAll("SELECT browser, regstring FROM reg_browser ORDER by sequence ASC");
                $this->osReg = $this->fetchAll("SELECT os, regstring FROM reg_os ORDER by sequence ASC");
@@ -659,31 +660,67 @@ class Parser
      */
     protected function checkDBdat()
     {
-        if (file_exists($this->data_dir . "/udgerdb.dat")) {
-            // check version
-            $this->dbdat = new \SQLite3($this->data_dir . '/udgerdb.dat');
-            $q = @$this->dbdat->query("SELECT lastupdate,version FROM _info_ where key=1");
-            if ($q) {
-                $r = $q->fetchArray(SQLITE3_ASSOC);
-                $this->dbdat->close();
-                $time = time();
-                $this->debug("lastupdate time:" . $r['lastupdate'] . ", curent time: " . $time . ", update interval: " . $this->updateInterval);
-
-                if (($r['lastupdate'] + $this->updateInterval) < $time) {
-                    $this->debug('Data is maybe outdated (local version is ' . $r['version'] . '), check new data from server');
-                    return $this->downloadData($r['version']);
-                } else {
-                    $this->debug('Data is current and will be used (local version is ' . $r['version'] . ')');
-                    return true;
-                }
-            } else {
-                $this->debug('Data is corrupted, download data');
-                return $this->downloadData();
-            }
-        } else {
+        if (false === file_exists($this->data_dir . "/udgerdb.dat")) {
             $this->debug('Data dir is empty, download data');
             return $this->downloadData();
         }
+        
+        // check version
+        $this->dbdat = new \SQLite3($this->getDatFilePath());
+        $q = @$this->dbdat->query("SELECT lastupdate,version FROM _info_ where key=1");
+        if ($q) {
+            $r = $q->fetchArray(SQLITE3_ASSOC);
+            $this->dbdat->close();
+            $time = time();
+            $this->debug("lastupdate time:" . $r['lastupdate'] . ", curent time: " . $time . ", update interval: " . $this->updateInterval);
+
+            if (($r['lastupdate'] + $this->updateInterval) < $time) {
+                $this->debug('Data is maybe outdated (local version is ' . $r['version'] . '), check new data from server');
+                return $this->downloadData($r['version']);
+            } else {
+                $this->debug('Data is current and will be used (local version is ' . $r['version'] . ')');
+                return true;
+            }
+        } else {
+            $this->debug('Data is corrupted, download data');
+            return $this->downloadData();
+        }
+    }
+
+    /**
+     * 
+     * @return string
+     */
+    protected function getVersionFileUrl()
+    {
+        return sprintf("%s/%s/%s", self::$base_url, $this->access_key, self::$ver_filename);
+    }
+    
+    /**
+     * 
+     * @return string
+     */
+    protected function getDataFileUrl()
+    {
+        return sprintf("%s/%s/%s", self::$base_url, $this->access_key, self::$data_filename);
+    }
+    
+    /**
+     * 
+     * @return string
+     */
+    protected function getChecksumFileUrl()
+    {
+        return sprintf("%s/%s/%s", self::$base_url, $this->access_key, self::$md5_filename);
+    }
+    
+    /**
+     * 
+     * @return string
+     */
+    protected function getDatFilePath()
+    {
+        return sprintf("%s/%s", $this->data_dir, 'udgerdb.dat');
     }
 
     /**
@@ -692,79 +729,60 @@ class Parser
      * @return boolean
      */
     protected function downloadData($version = "")
-    {     
-        $status = false;
-        
+    {   
         if (!file_exists($this->data_dir)) {
-            $this->debug('Data dir not found');
-            return $status;
+            throw new \Exception('Data dir not found');
         }
 
-        // support for fopen is needed
-        if (!ini_get('allow_url_fopen')) {
-            $this->debug('php fopen unavailable, download the data manually from http://data.udger.com/');
-            return $status;
+        // Check the version on the server
+        list($statusCode, $ver) = $this->getContents($this->getVersionFileUrl(), $this->timeout);
+
+        if ($statusCode == 404) {
+            throw new \Exception('Probably wrong access key');
         }
         
-        // Check the version on the server
-        $ContentsRet = $this->getContents(self::$base_url.$this->access_key.self::$ver_filename, $this->timeout);
-        if($ContentsRet[0] == 'HTTP/1.1 404 Not Found') {
-            $this->debug('Probably wrong access key');
-            return $status;
-        }
-        else {
-            $ver = $ContentsRet[1];
-            if (preg_match('/^[0-9]{8}-[0-9]{2}$/', $ver)) { //Should be a date and version string like '20130529-01'
-                if (isset($version)) {
-                    if ($ver <= $version) { //Version on server is same as or older than what we already have
-                        $this->debug('Download skipped, existing data file is current (server version is '.$ver.', local version is '.$version.').');
-                        return true;
-                    }
+        if (preg_match('/^[0-9]{8}-[0-9]{2}$/', $ver)) { // Should be a date and version string like '20130529-01'
+            if (isset($version)) {
+                if ($ver <= $version) { // Version on server is same as or older than what we already have
+                    $this->debug('Download skipped, existing data file is current (server version is ' . $ver . ', local version is ' . $version . ').');
+                    return true;
                 }
             }
-            else {
-                $this->debug('Version string format mismatch.');
-                $ver = '0';
-                return false;
-            }
+        } else {
+            throw new \Exception('Probably wrong access key');
+        }
 
-            // Download the data file       
-            $ContentsRet = $this->getContents(self::$base_url.$this->access_key.self::$data_filename, $this->timeout);
-            $dat = $ContentsRet[1];
-            if (!empty($dat)) {
-                // Download the hash file
-                $ContentsRet = $this->getContents(self::$base_url.$this->access_key.self::$md5_filename, $this->timeout);
-                $md5hash = $ContentsRet[1];
-                if (!empty($md5hash)) {
-                    // Validate the hash, if okay store the new data file
-                    if (md5($dat) == $md5hash) {
-                        $written = @file_put_contents($this->data_dir . '/udgerdb.dat', $dat, LOCK_EX);
-                        if ($written === false) {
-                            $this->debug('Failed to write data file to ' . $this->data_dir . '/udgerdb.dat');
-                        } 
-                        else {
-                            $status = true;
-                        }
-                    } 
-                    else {
-                        $this->debug('Data file hash mismatch.');
-                    }
-                } 
-                else {
-                    $this->debug('Failed to fetch hash file.');
-                }
-            } 
-            else {
-                $this->debug('Failed to fetch data file.');
-            }
-            if (file_exists($this->data_dir."/udgerdb.dat")) {
-                $this->dbdat = new \SQLite3($this->data_dir . '/udgerdb.dat');
-                @$this->dbdat->query("UPDATE _info_ SET lastupdate=".time()." WHERE key=1");
-                $this->dbdat->close();
-            }
-            return $status;
+        // Download the data file       
+        list($statusCode, $dat) = $this->getContents($this->getDataFileUrl(), $this->timeout);
+
+        if (empty($dat)) {
+            throw new \Exception('Failed to fetch data file');
         }
+
+        // Download the hash file
+        list($statusCode, $md5hash) = $this->getContents($this->getChecksumFileUrl(), $this->timeout);
+
+        if (empty($md5hash)) {
+            throw new \Exception('Failed to fetch hash file');
+        }
+
+        // Validate the hash, if okay store the new data file
+        if (md5($dat) != trim($md5hash)) {
+            throw new \Exception('Data file hash mismatch');
+        }
+
+        if (false === @file_put_contents($this->getDatFilePath(), $dat, LOCK_EX)) {
+            throw new \Exception('Failed to write data file to ' . $this->getDatFilePath());
+        }
+
+        if (file_exists($this->data_dir . "/udgerdb.dat")) {
+            $this->dbdat = new \SQLite3($this->getDatFilePath());
+            @$this->dbdat->query("UPDATE _info_ SET lastupdate=" . time() . " WHERE key=1");
+            $this->dbdat->close();
+        }
+        return true;
     }
+
     /**
      * Get the contents of a URL with a defined timeout.
      * @param string $url
@@ -773,58 +791,19 @@ class Parser
      */
     protected function getContents($url, $timeout = 120)
     {
-        $data = '';
-        $starttime = microtime(true);
-        
-        $fp = @fopen(
-            $url,
-            'rb',
-            false,
-            stream_context_create(
-                array(
-                    'http' => array(
-                        'timeout' => $timeout,
-                        'header' => "Accept-Encoding: gzip\r\n"
-                    )
-                )
-            )
+        $options = array(
+            'timeout' => $timeout,
+            'headers' => array('Accept-Encoding' => 'gzip'),
+            'decode_content' => true
         );
-        if (is_resource($fp)) {
-            $data = stream_get_contents($fp);
-            $res = stream_get_meta_data($fp);
-            if (array_key_exists('wrapper_data', $res)) {
-                foreach ($res['wrapper_data'] as $d) {
-                    if ($d == 'Content-Encoding: gzip') { //Data was compressed
-                        $data = gzinflate(substr($data, 10, -8)); //Uncompress data
-                        $this->debug('Successfully uncompressed data');
-                        break;
-                    }
-                }
-            }
-            fclose($fp);
-            if (empty($data)) {
-                if ($this->debug) {
-                    if ($res['timed_out']) {
-                        $this->debug('Fetching URL failed due to timeout: ' . $url);
-                    } 
-                    else {
-                        $this->debug('Fetching URL failed: ' . $url);
-                    }
-                }
-                $data = '';
-            } else {
-                $this->debug(
-                    'Fetching URL with fopen succeeded: ' . $url . '. ' . strlen($data) . ' bytes in ' . (microtime(
-                            true
-                        ) - $starttime) . ' sec.'
-                );
-            }
-        } 
-        else {
-            $this->debug('Opening URL failed: '. $url.' - Error: '.@$http_response_header[0]);
-        }
-        return array(@$http_response_header[0], $data);
+
+        $client = new \GuzzleHttp\Client();
+        $result = $client->get($url, $options);
+        $return = array($result->getStatusCode(), $result->getBody()->getContents());
+        
+        return $return;
     }
+    
     /**
      * Set the data directory.
      * @param string
@@ -846,6 +825,7 @@ class Parser
         $this->data_dir = $data_dir;
         return true;
     }    
+    
     /**
      * Set the account access key.
      * @param string
@@ -857,6 +837,7 @@ class Parser
         $this->access_key = $access_key;
         return true;
     }
+    
     /**
      * Enable/disable fragment parsing.
      * @param string
@@ -899,7 +880,8 @@ class Parser
             echo date_format($d, 'Y-m-d H:i:s.u') . "\t$msg.$htmlNL.\n";
             flush();
         }
-    }    
+    }
+    
     /**
      * Validate IP addresss
      * @param string $ip
