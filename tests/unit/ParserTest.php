@@ -2,8 +2,7 @@
 
 namespace tests\Udger;
 
-class ParserTest extends \Codeception\TestCase\Test
- {
+class ParserTest extends \Codeception\TestCase\Test {
 
     /**
      * @var \UnitGuy
@@ -18,7 +17,7 @@ class ParserTest extends \Codeception\TestCase\Test
 
     protected function _before()
     {
-        $this->parser = new \Udger\Parser(TRUE);
+        $this->parser = new \Udger\Parser(\Codeception\Util\Stub::makeEmpty("Psr\Log\LoggerInterface"));
         $this->parser->setAccessKey("udger-php-unit");
         $this->parser->setDataDir(sys_get_temp_dir());
     }

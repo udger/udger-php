@@ -12,6 +12,8 @@
 
 namespace Udger;
 
+use Psr\Log\LoggerInterface;
+
 /**
  * udger.com Local Parser Class.
  * @package UdgerParser
@@ -101,13 +103,16 @@ class Parser implements ParserInterface
      * @type bool
      */
     protected $parse_fragments = false;
+    
+    private $logger;
+
     /**
-     * Constructor.
-     * @param bool $debug Whether to emit debug info.
+     * 
+     * @param LoggerInterface $logger
      */
-    public function __construct($debug = false)
+    public function __construct(LoggerInterface $logger)
     {
-        $this->debug = (boolean)$debug;        
+        $this->logger = $logger;        
     }
 
     /**
@@ -117,7 +122,7 @@ class Parser implements ParserInterface
      */
     public function account()    
     {   
-        $this->debug("account: start");
+        $this->logger->debug("account: start");
         
         if(empty($this->access_key)) {
             throw new \Exception("access key not set");
@@ -166,10 +171,10 @@ class Parser implements ParserInterface
     {         
         $this->setDBdat();
         
-        $this->debug("isBot: start");
+        $this->logger->debug("isBot: start");
         // validate
         if (empty($this->dbdat)) {
-            $this->debug('Data file not found, download the data manually from http://data.udger.com/');
+            $this->logger->debug('Data file not found, download the data manually from http://data.udger.com/');
             throw new \Exception('data file not found');
         }
         
@@ -191,7 +196,7 @@ class Parser implements ParserInterface
         $botURL    = '';
         
         if ($useragent) {
-            $this->debug("isBot: test useragent '".$useragent."'");
+            $this->logger->debug("isBot: test useragent '".$useragent."'");
             $q = $this->dbdat->query("SELECT name,family FROM c_robots where md5='".md5($useragent)."'");
             if($r=$q->fetchArray(SQLITE3_ASSOC)) {
                 $botInfo   = true;
@@ -202,7 +207,7 @@ class Parser implements ParserInterface
             }
        }
        if ($ip) {
-           $this->debug("isBot: test IP address '".$ip."'");
+           $this->logger->debug("isBot: test IP address '".$ip."'");
            $q=$this->dbdat->query("SELECT name,family from c_robots AS C JOIN bot_ip as B ON C.id=B.robot and B.md5='".md5($ip)."' ");
            if($r=$q->fetchArray(SQLITE3_ASSOC)) {
                $botInfo   = true;
@@ -215,7 +220,7 @@ class Parser implements ParserInterface
            }
        }
        
-       $this->debug("isBot: completed");
+       $this->logger->debug("isBot: completed");
        return array('flag'          => 0, 
                     'is_bot'        => $botInfo, 
                     'bot_by_ua'     => $botInfoUA, 
@@ -235,16 +240,16 @@ class Parser implements ParserInterface
     {
         $this->setDBdat();
         
-        $this->debug("parse: start (useragent:".$useragent.")");
+        $this->logger->debug("parse: start (useragent:".$useragent.")");
          
         // validate
         if (empty($this->dbdat)) {
-            $this->debug('Data file not found, download the data manually from http://data.udger.com/');
+            $this->logger->debug('Data file not found, download the data manually from http://data.udger.com/');
             throw new \Exception("data file not found");
         }
         
         if (empty($useragent)) {
-            $this->debug('parse: Missing mandatory parameter');
+            $this->logger->debug('parse: Missing mandatory parameter');
             throw new \Exception("missing mandatory parameter");
         }
         
@@ -282,10 +287,10 @@ class Parser implements ParserInterface
         $browser_id = null;
         
         // parse
-        $this->debug("parse: bot");
+        $this->logger->debug("parse: bot");
         $q = $this->dbdat->query("SELECT name,family,url,company,url_company,icon FROM c_robots where md5='".md5($useragent)."'");
         if($r=$q->fetchArray(SQLITE3_ASSOC)) {
-                $this->debug("parse: bot found");
+                $this->logger->debug("parse: bot found");
             	
 		$info["type"]             = "Robot";
                 $info["ua_name"]          = $r["name"];
@@ -307,11 +312,11 @@ class Parser implements ParserInterface
                 
         }
         
-        $this->debug("parse: browser");
+        $this->logger->debug("parse: browser");
         foreach ($this->browserReg as $r) {
             if (preg_match($r["regstring"],$useragent,$result)) {
                 $browser_id = $r["browser"];
-                $this->debug("parse: browser found (id: ".$browser_id.")");
+                $this->logger->debug("parse: browser found (id: ".$browser_id.")");
                 
                 $q = $this->dbdat->query("SELECT type,name,engine,url,company,company_url,icon FROM c_browser WHERE id=".$browser_id." ");
                 $r=$q->fetchArray(SQLITE3_ASSOC);
@@ -339,20 +344,20 @@ class Parser implements ParserInterface
             }
         }   
         
-        $this->debug("parse: os");
+        $this->logger->debug("parse: os");
         $os_id = 0;
         if(!is_null($browser_id)) {
             $q = $this->dbdat->query("SELECT os FROM c_browser_os where browser=".$browser_id."");
             if($r=$q->fetchArray(SQLITE3_ASSOC)) {
                 $os_id = $r["os"];
-                $this->debug("parse: os found (id: ".$os_id.")");
+                $this->logger->debug("parse: os found (id: ".$os_id.")");
             }
         }
         if(!$os_id) {
             foreach($this->osReg as $r) {
                 if (preg_match($r["regstring"],$useragent,$result)) {
                     $os_id = $r["os"];
-                    $this->debug("parse: os found (id: ".$os_id.")");
+                    $this->logger->debug("parse: os found (id: ".$os_id.")");
                     break;
                 }
             }   
@@ -370,12 +375,12 @@ class Parser implements ParserInterface
         }
         
         
-        $this->debug("parse: device");
+        $this->logger->debug("parse: device");
         $device_id = 0;
         foreach ($this->deviceReg as $r) {
             if (preg_match($r["regstring"],$useragent,$result)) {
                 $device_id = $r["device"];
-                $this->debug("parse: device found (id: ".$device_id.")");
+                $this->logger->debug("parse: device found (id: ".$device_id.")");
                 break;
             }
         }   
@@ -390,25 +395,25 @@ class Parser implements ParserInterface
         }
         else if($info["type"]=="Mobile Browser")
         {
-            $this->debug("parse: device set by ua type - Mobile Browser");
+            $this->logger->debug("parse: device set by ua type - Mobile Browser");
             $info["device_name"]      = "Smartphone";
             $info["device_icon"]      = "phone.png";
             $info["device_udger_url"] = self::$resources_url."/device-detail?device=Smartphone";
         }
         else if($info["type"]=="Library" || $info["type"]=="Validator" || $info["type"]=="Other" || $info["type"]=="Useragent Anonymizer")
         {
-            $this->debug("parse: device set by ua type");
+            $this->logger->debug("parse: device set by ua type");
             $info["device_name"]      = "Other";
             $info["device_icon"]      = "other.png";
             $info["device_udger_url"] = self::$resources_url."/device-detail?device=Other";
         }
         
-        $this->debug("parse: uptodate");
+        $this->logger->debug("parse: uptodate");
         if($browser_id) {
             $ver_major = explode(".", $info["ua_ver"]);
             $q = $this->dbdat->query("SELECT ver, url FROM c_browser_uptodate WHERE browser_id='".$browser_id."' AND (os_independent = 1 OR os_family = '".$info["os_family"]."')");
             if($r=$q->fetchArray(SQLITE3_ASSOC)) {
-                $this->debug("parse: uptodate controlled");
+                $this->logger->debug("parse: uptodate controlled");
                 $uptodate["controlled"]   = true;
                 if($ver_major[0] >= $r['ver']) {
                     $uptodate["is"]       = true;
@@ -419,14 +424,14 @@ class Parser implements ParserInterface
         }
         
         if($this->parse_fragments) {
-            $this->debug("parse: fragments");
+            $this->logger->debug("parse: fragments");
             $fragments = $this->parseFragments($useragent);            
         }
         else {
-            $this->debug("parse: fragments skiped");
+            $this->logger->debug("parse: fragments skiped");
         }
         
-        $this->debug("parse: completed");
+        $this->logger->debug("parse: completed");
         return array('flag'      => 1, 
                      'info'      => $info,
                      'fragments' => $fragments,
@@ -442,7 +447,7 @@ class Parser implements ParserInterface
     {
         $fr = $this->getFragments($useragent);
         $ret = array('detail' => '');
-        $this->debug("parse: fragments parse");
+        $this->logger->debug("parse: fragments parse");
         for ($fi=0; $fi<count($fr); $fi++) {
                 $f=$fr[$fi];
 		
@@ -544,7 +549,7 @@ class Parser implements ParserInterface
     */
     protected function getFragments($useragent)
     {
-        $this->debug("parse: get fragments");
+        $this->logger->debug("parse: get fragments");
         
         $section=array(1 => "", 2 => "", 3 => "");
         $bra=0;
@@ -634,11 +639,11 @@ class Parser implements ParserInterface
     protected function setDBdat()
     {
         if (!$this->dbdat) {
-           $this->debug("Open DB file: ".$this->data_dir."/udgerdb.dat");
+           $this->logger->debug("Open DB file: ".$this->data_dir."/udgerdb.dat");
            if(!empty($this->access_key) && $this->autoUpdate === true) {
                 $this->checkDBdat();
            }elseif($this->autoUpdate === false){
-               $this->debug('Auto update is disabled, use existing db'); 
+               $this->logger->debug('Auto update is disabled, use existing db'); 
            }
            if (file_exists($this->getDatFilePath())) {
                $this->dbdat = new \SQLite3($this->getDatFilePath());
@@ -661,7 +666,7 @@ class Parser implements ParserInterface
     protected function checkDBdat()
     {
         if (false === file_exists($this->data_dir . "/udgerdb.dat")) {
-            $this->debug('Data dir is empty, download data');
+            $this->logger->debug('Data dir is empty, download data');
             return $this->downloadData();
         }
         
@@ -672,17 +677,17 @@ class Parser implements ParserInterface
             $r = $q->fetchArray(SQLITE3_ASSOC);
             $this->dbdat->close();
             $time = time();
-            $this->debug("lastupdate time:" . $r['lastupdate'] . ", curent time: " . $time . ", update interval: " . $this->updateInterval);
+            $this->logger->debug("lastupdate time:" . $r['lastupdate'] . ", curent time: " . $time . ", update interval: " . $this->updateInterval);
 
             if (($r['lastupdate'] + $this->updateInterval) < $time) {
-                $this->debug('Data is maybe outdated (local version is ' . $r['version'] . '), check new data from server');
+                $this->logger->debug('Data is maybe outdated (local version is ' . $r['version'] . '), check new data from server');
                 return $this->downloadData($r['version']);
             } else {
-                $this->debug('Data is current and will be used (local version is ' . $r['version'] . ')');
+                $this->logger->debug('Data is current and will be used (local version is ' . $r['version'] . ')');
                 return true;
             }
         } else {
-            $this->debug('Data is corrupted, download data');
+            $this->logger->debug('Data is corrupted, download data');
             return $this->downloadData();
         }
     }
@@ -744,7 +749,7 @@ class Parser implements ParserInterface
         if (preg_match('/^[0-9]{8}-[0-9]{2}$/', $ver)) { // Should be a date and version string like '20130529-01'
             if (isset($version)) {
                 if ($ver <= $version) { // Version on server is same as or older than what we already have
-                    $this->debug('Download skipped, existing data file is current (server version is ' . $ver . ', local version is ' . $version . ').');
+                    $this->logger->debug('Download skipped, existing data file is current (server version is ' . $ver . ', local version is ' . $version . ').');
                     return true;
                 }
             }
@@ -811,13 +816,13 @@ class Parser implements ParserInterface
      */
     public function setDataDir($data_dir)
     {
-        $this->debug('Setting cache dir to ' . $data_dir);
+        $this->logger->debug('Setting cache dir to ' . $data_dir);
         if (!file_exists($data_dir)) {
             @mkdir($data_dir, 0777, true);
         }
         
         if (!is_writable($data_dir) || !is_dir($data_dir)) {
-            $this->debug('Data dir(' . $data_dir . ') is not a directory or not writable');
+            $this->logger->debug('Data dir(' . $data_dir . ') is not a directory or not writable');
             return false;
         }
         
@@ -833,7 +838,7 @@ class Parser implements ParserInterface
      */
     public function setAccessKey($access_key)
     {
-        $this->debug('Setting AccessKey to ' . $access_key);        
+        $this->logger->debug('Setting AccessKey to ' . $access_key);        
         $this->access_key = $access_key;
         return true;
     }
@@ -845,7 +850,7 @@ class Parser implements ParserInterface
      */
     public function setParseFragments($parse_fragments)
     {
-        $this->debug('Setting Parse Fragments to ' . $parse_fragments);        
+        $this->logger->debug('Setting Parse Fragments to ' . $parse_fragments);        
         $this->parse_fragments = $parse_fragments;
         return true;
     }
@@ -863,23 +868,6 @@ class Parser implements ParserInterface
             return true;
         }
         return false;
-    }
-    
-    /**
-     * Output a time-stamped debug message if debugging is enabled
-     * @param string $msg
-     */
-    protected function debug($msg)
-    {
-        if ($this->debug) {
-            $htmlNL = '';
-            if(isset($_SERVER['SERVER_SOFTWARE']))
-               $htmlNL = '<br />';
-            $micro = date('Y-m-d\TH:i:s') . substr(microtime(), 1, 9);
-            $d = new \DateTime($micro);
-            echo date_format($d, 'Y-m-d H:i:s.u') . "\t$msg.$htmlNL.\n";
-            flush();
-        }
     }
     
     /**

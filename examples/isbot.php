@@ -3,8 +3,8 @@
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
 // creates a new UdgerParser object
-$parser = new Udger\Parser(true); // Development/Debug
-//$parser = new Udger\Parser(); // Production
+$factory = new Udger\ParserFactory();
+$parser = $factory->getParser();
 
 // set data dir (this php script must right write to cache dir)
 $parser->setDataDir(sys_get_temp_dir() . "/udgercache/");

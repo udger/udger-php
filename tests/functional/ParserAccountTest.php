@@ -21,7 +21,7 @@ class ParserAccountTest extends \Codeception\TestCase\Test
     // tests
     public function testAccount()
     {
-        $parser = new \Udger\Parser();
+        $parser = new \Udger\Parser(\Codeception\Util\Stub::makeEmpty("Psr\Log\LoggerInterface"));
         $parser->setAccessKey("nosuchkey");
         
         $this->setExpectedException("Exception", "incorrect accesskey");
@@ -30,7 +30,7 @@ class ParserAccountTest extends \Codeception\TestCase\Test
     
     public function testAccountMissingKey()
     {
-        $parser = new \Udger\Parser();
+        $parser = new \Udger\Parser(\Codeception\Util\Stub::makeEmpty("Psr\Log\LoggerInterface"));
         
         $this->setExpectedException("Exception", "access key not set");
         $parser->account();
@@ -38,7 +38,7 @@ class ParserAccountTest extends \Codeception\TestCase\Test
     
     public function testAccountValidKey()
     {
-        $parser = new \Udger\Parser();
+        $parser = new \Udger\Parser(\Codeception\Util\Stub::makeEmpty("Psr\Log\LoggerInterface"));
         $parser->setAccessKey("94a4d5510a30ef2e367b27761ebc765b");
         
         $result = $parser->account();

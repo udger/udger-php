@@ -17,7 +17,7 @@ class ParserMultipleTest extends \Codeception\TestCase\Test {
 
     protected function _before()
     {
-        $this->parser = new \Udger\Parser();
+        $this->parser = new \Udger\Parser(\Codeception\Util\Stub::makeEmpty("Psr\Log\LoggerInterface"));
         $this->parser->setDataDir(dirname(__DIR__) . "/fixtures/udgercache/");
     }
 

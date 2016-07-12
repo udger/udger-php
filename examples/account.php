@@ -2,10 +2,9 @@
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
-// creates a new UdgerParser object
-$parser = new Udger\Parser(true); // Development/Debug
-//$parser = new Udger\Parser(); // Production
-//
+$factory = new Udger\ParserFactory();
+$parser = $factory->getParser();
+
 // set You Acceskey (see https://udger.com/account/main) 
 $parser->setAccessKey('XXXXXX');
 
