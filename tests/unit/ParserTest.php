@@ -18,7 +18,7 @@ class ParserTest extends \Codeception\TestCase\Test {
     protected function _before()
     {
         $this->parser = new \Udger\Parser(\Codeception\Util\Stub::makeEmpty("Psr\Log\LoggerInterface"));
-        $this->parser->setAccessKey("udger-php-unit");
+        #$this->parser->setAccessKey("udger-php-unit");
         $this->parser->setDataDir(sys_get_temp_dir());
     }
 
@@ -33,36 +33,30 @@ class ParserTest extends \Codeception\TestCase\Test {
         $this->assertTrue($this->parser->setDataDir(sys_get_temp_dir()));
     }
 
-    public function testSetParseFragments()
-    {
-        $this->assertTrue($this->parser->setParseFragments(false));
-        $this->assertTrue($this->parser->setParseFragments(true));
-    }
-
     public function testSetAccessKey()
     {
         $this->assertTrue($this->parser->setAccessKey("123456"));
     }
-
-    public function testParse()
+    
+    public function testSetUA()
     {
-        $result = $this->parser->parse("random agent");
+        $this->assertTrue($this->parser->setUA("agent"));
     }
-
-    public function testIsBot()
-    {
-        $this->assertNotEmpty($this->parser->isBot("random agent", "0.0.0.0"));
+    
+    public function testSetIP()
+    {   
+        $this->assertTrue($this->parser->setIP("0.0.0.0"));
+    }
+    
+    public function testParse()
+    {   
+        $this->setExpectedException("Exception");
+        $this->parser->parse();
     }
 
     public function testAccount()
     {   
-        $this->setExpectedException("Exception", "incorrect accesskey");
+        $this->setExpectedException("Exception");
         $this->parser->account("test key");
-    }
-    
-    public function testUpdateData()
-    {   
-        // false because access key is invalid
-        $this->assertTrue($this->parser->updateData());
     }
 }

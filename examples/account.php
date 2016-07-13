@@ -6,7 +6,7 @@ $factory = new Udger\ParserFactory();
 $parser = $factory->getParser();
 
 // set You Acceskey (see https://udger.com/account/main) 
-$parser->setAccessKey('XXXXXX');
+$parser->setAccessKey('94a4d5510a30ef2e367b27761ebc765b');
 
 try {
     $ret = $parser->account();
