@@ -1,6 +1,10 @@
-# Udger client for PHP
+# Udger client for PHP (data ver. 3)
 Local parser is very fast and accurate useragent string detection solution. Enables developers to locally install and integrate a highly-scalable product.
 We provide the detection of the devices (personal computer, tablet, Smart TV, Game console etc.), operating system and client SW type (browser, e-mail client etc.).
+It also provides information about IP addresses (Public proxies, VPN services, Tor exit nodes, Fake crawlers, Web scrapers .. etc.)
+
+- Tested with more the 50.000 unique user agents.
+- Up to date data provided by https://udger.com/
 
 ### Requirements
  - php >= 5.3.0
@@ -8,8 +12,6 @@ We provide the detection of the devices (personal computer, tablet, Smart TV, Ga
 
 ### Features
 - Fast
-- Standalone
-- Auto updated datafile and cache from remote server with version checking and checksum datafile
 - Released under the GNU (LGPL v.3)
 
 ### Install
@@ -17,15 +19,15 @@ We provide the detection of the devices (personal computer, tablet, Smart TV, Ga
     composer install
 
 ### Usage
-You should review the included examples (`parse.php`, `account.php`, `manual_update_data.php`)
+You should review the included examples (`parse.php`, `account.php`)
 
 Here's a quick example:
 
 ```php
-require_once __DIR__ . '/vendor/autoload.php';
-$parser = new Udger\Parser();
-$parser->setDataDir(sys_get_temp_dir() . "/udgercache/");
-$parser->setAccessKey('XXXXXX');
+require_once dirname(__DIR__) . '/vendor/autoload.php';
+$factory = new Udger\ParserFactory();
+$parser = $factory->getParser();
+$parser->setDataDir(sys_get_temp_dir() . "/udgercache/");  
 $parser->setUA('Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.97 Safari/537.36');
 $parser->setIP("2A02:598:7000:116:0:0:0:101");
 $ret = $parser->parse();
@@ -113,12 +115,14 @@ Array
 
 
 
-### Running tests
-
+### Running tests  
     ./vendor/bin/codecept run
 
-### Data for parser
-- info: https://udger.com/download/data
+### Automatic updates download
+- for autoupdate data use Udger data updater (https://udger.com/support/documentation/?doc=62)
 
 ### Author
 - The Udger.com Team (info@udger.com)
+                
+### old v2 format
+If you still use the previous format of the db (v2), please see the branch old_format_v2   
