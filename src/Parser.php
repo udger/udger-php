@@ -20,12 +20,7 @@ use Psr\Log\LoggerInterface;
  */
 class Parser implements ParserInterface
 {
-    /**
-     * How often to update the UAS database.
-     * @type integer
-     */
-    protected $updateInterval = 86400; // in seconds - 86400 is 1 day
-    
+        
     /**
      * Default timeout for network requests.
      * @type integer
@@ -36,37 +31,8 @@ class Parser implements ParserInterface
      * api URL.
      * @type string
      */
-    protected static $api_url = 'http://api.udger.com/v3';
-    
-    /**
-     * base URL udger data.
-     * @type string
-     */
-    protected static $base_url = 'https://data.udger.com';
-    
-    /**
-     * version file name
-     * @type string
-     */
-    protected static $ver_filename = 'version';
-    
-    /**
-     * data file name
-     * @type string
-     */
-    protected static $data_filename = '/udgerdb_v3.dat';  
-    
-    /**
-     * md5 hash file name
-     * @type string
-     */
-    protected static $md5_filename = '/udgerdb_v3_dat.md5';  
-    
-    /**
-     * resources URL.
-     * @type string
-     */
-    protected static $resources_url = 'https://udger.com/resources/ua-list';
+    protected static $api_url = 'http://api.udger.com/v3'; 
+        
     
     /**
      * Path to the data file
@@ -471,7 +437,7 @@ class Parser implements ParserInterface
                 $q=$this->dbdat->query("select name,name_code,homepage 
                                        FROM udger_datacenter_range
                                        JOIN udger_datacenter_list ON udger_datacenter_range.datacenter_id=udger_datacenter_list.id
-                                       where iplong_from <= ".ip2long($ret['ip_address']['ip'])." AND iplong_to >= ".ip2long($ret['ip_address']['ip'])." ");
+                                       where iplong_from <= ".sprintf('%u', ip2long($ret['ip_address']['ip']) )." AND iplong_to >= ".sprintf('%u', ip2long($ret['ip_address']['ip']) )." ");
                 if ($r=$q->fetchArray(SQLITE3_ASSOC)) {
                     $ret['ip_address']['datacenter_name'] = $r['name'];
                     $ret['ip_address']['datacenter_name_code'] = $r['name_code'];
