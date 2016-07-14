@@ -16,7 +16,9 @@ class MissingDatfileTest extends \Codeception\TestCase\Test
 
     protected function _before()
     {
-        $this->parser = new \Udger\Parser(\Codeception\Util\Stub::makeEmpty("Psr\Log\LoggerInterface"));
+        $this->parser = new \Udger\Parser(
+                \Codeception\Util\Stub::makeEmpty("Psr\Log\LoggerInterface"),
+                \Codeception\Util\Stub::makeEmpty("Udger\Helper\IP"));
     }
 
     protected function _after()

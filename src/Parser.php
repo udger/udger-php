@@ -77,6 +77,7 @@ class Parser implements ParserInterface
 
     /**
      * @param LoggerInterface $logger
+     * @param IPInterface
      */
     public function __construct(LoggerInterface $logger, IPInterface $ipHelper)
     {
