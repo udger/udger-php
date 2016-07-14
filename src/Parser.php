@@ -40,7 +40,7 @@ class Parser implements ParserInterface
      * 
      * @type string
      */
-    protected $data_dir;
+    protected $path;
 
     /**
      * Personal access key
@@ -474,36 +474,29 @@ class Parser implements ParserInterface
     protected function setDBdat()
     {
         if (is_null($this->dbdat)) {
-            $path = $this->data_dir . "/udgerdb_v3.dat";
-            $this->logger->debug("db: open file: $path");
-            if (file_exists($path)) {
-                $this->dbdat = new \SQLite3($path);
-            } else {
-                throw new \Exception("Data file not found: $path");
-            }
+            $this->logger->debug(sprintf("db: open file: %s", $this->path));
+            $this->dbdat = new \SQLite3($this->path);
         }
     }
 
     /**
-     * Set the data directory
+     * Set path to sqlite file
      * 
      * @param string
      * @return bool
      */
-    public function setDataDir($data_dir)
+    public function setDataFile($path)
     {
-        $this->logger->debug('setting: set cache dir to ' . $data_dir);
-        if (!file_exists($data_dir)) {
-            @mkdir($data_dir, 0777, true);
+        if (false === file_exists($path)) {
+            throw new \Exception(sprintf("%s does not exist", $path));
         }
-
-        if (!is_writable($data_dir) || !is_dir($data_dir)) {
-            $this->logger->debug('Data dir(' . $data_dir . ') is not a directory or not writable');
-            return false;
+        
+        if (false === is_writable($path)) {
+            throw new \Exception(sprintf("%s is not writable", $path));
         }
-
-        $data_dir = realpath($data_dir);
-        $this->data_dir = $data_dir;
+        
+        $this->path = $path;
+        
         return true;
     }
 

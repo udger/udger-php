@@ -18,5 +18,5 @@ interface ParserInterface {
     
     public function setAccessKey($access_key);
     
-    public function setDataDir($data_dir);
+    public function setDataFile($path);
 }

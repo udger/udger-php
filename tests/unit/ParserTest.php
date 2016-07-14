@@ -21,7 +21,7 @@ class ParserTest extends \Codeception\TestCase\Test {
                 \Codeception\Util\Stub::makeEmpty("Psr\Log\LoggerInterface"),
                 \Codeception\Util\Stub::makeEmpty("Udger\Helper\IP"));
         #$this->parser->setAccessKey("udger-php-unit");
-        $this->parser->setDataDir(sys_get_temp_dir());
+        $this->parser->setDataFile("/dev/null");
     }
 
     protected function _after()
@@ -30,9 +30,10 @@ class ParserTest extends \Codeception\TestCase\Test {
     }
 
     // tests
-    public function testSetDataDir()
+    public function testSetDataFile()
     {
-        $this->assertTrue($this->parser->setDataDir(sys_get_temp_dir()));
+        $this->setExpectedException("Exception");
+        $this->assertTrue($this->parser->setDataFile("/this/is/a/missing/path"));
     }
 
     public function testSetAccessKey()
@@ -52,7 +53,7 @@ class ParserTest extends \Codeception\TestCase\Test {
     
     public function testParse()
     {   
-        $this->setExpectedException("Exception");
+        #$this->setExpectedException("Exception");
         $this->parser->parse();
     }
 
