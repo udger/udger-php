@@ -11,6 +11,7 @@
 namespace Udger;
 
 use Psr\Log\LoggerInterface;
+use Udger\Helper\IPInterface;
 
 /**
  * udger.com Local Parser Class
@@ -68,13 +69,19 @@ class Parser implements ParserInterface
      * @type object
      */
     protected $dbdat;
+    
+    /**
+     * @var IPInterface 
+     */
+    protected $ipHelper;
 
     /**
      * @param LoggerInterface $logger
      */
-    public function __construct(LoggerInterface $logger)
+    public function __construct(LoggerInterface $logger, IPInterface $ipHelper)
     {
         $this->logger = $logger;
+        $this->ipHelper = $ipHelper;
     }
 
     /**
@@ -389,9 +396,10 @@ class Parser implements ParserInterface
         if (!empty($this->ip)) {
             $this->logger->debug("parse IP address: START (IP: " . $this->ip . ")");
             $ret['ip_address']['ip'] = $this->ip;
-            $ipver = $this->validIP($this->ip);
-            if ($ipver != 0) {
-                if ($ipver == 6) {
+            $ipver = $this->ipHelper->getIpVersion($this->ip);
+            
+            if ($ipver !== false) {
+                if ($ipver === IPInterface::IPv6) {
                     $this->ip = inet_ntop(inet_pton($this->ip));
                     $this->logger->debug("compress IP address is:" . $this->ip);
                 }
@@ -404,6 +412,7 @@ class Parser implements ParserInterface
                                           LEFT JOIN udger_crawler_list ON udger_crawler_list.id=udger_ip_list.crawler_id
                                           LEFT JOIN udger_crawler_class ON udger_crawler_class.id=udger_crawler_list.class_id
                                           WHERE ip='" . $this->ip . "' ORDER BY sequence");
+                
                 if ($r = $q->fetchArray(SQLITE3_ASSOC)) {
                     $ret['ip_address']['ip_classification'] = $r['ip_classification'];
                     $ret['ip_address']['ip_classification_code'] = $r['ip_classification_code'];
@@ -434,11 +443,16 @@ class Parser implements ParserInterface
                     $ret['ip_address']['ip_classification'] = 'Unrecognized';
                     $ret['ip_address']['ip_classification_code'] = 'unrecognized';
                 }
-                if ($ret['ip_address']['ip_ver'] == '4') {
+                
+                if ($this->ipHelper->getIpVersion($ret['ip_address']['ip_ver']) === IPInterface::IPv4) {
+                    
+                    $ipLong = $this->ipHelper->getIpLongsprintf($ret['ip_address']['ip']);
+                    
                     $q = $this->dbdat->query("select name,name_code,homepage 
                                        FROM udger_datacenter_range
                                        JOIN udger_datacenter_list ON udger_datacenter_range.datacenter_id=udger_datacenter_list.id
-                                       where iplong_from <= " . sprintf('%u', ip2long($ret['ip_address']['ip'])) . " AND iplong_to >= " . sprintf('%u', ip2long($ret['ip_address']['ip'])) . " ");
+                                       where iplong_from <= " . $ipLong . " AND iplong_to >= " . $ipLong . " ");
+                    
                     if ($r = $q->fetchArray(SQLITE3_ASSOC)) {
                         $ret['ip_address']['datacenter_name'] = $r['name'];
                         $ret['ip_address']['datacenter_name_code'] = $r['name_code'];
@@ -503,32 +517,5 @@ class Parser implements ParserInterface
         $this->logger->debug('setting: set accesskey to ' . $access_key);
         $this->access_key = $access_key;
         return true;
-    }
-
-    /**
-     * Validate IP addresss
-     * 
-     * @param string $ip
-     * @return integer
-     */
-    protected function validIP($ip)
-    {
-        if (substr_count($ip, ":") < 1) {
-            if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-                $this->logger->debug("parse IP address: IP ver 4)");
-                return 4;
-            } else {
-                $this->logger->debug("parse IP address: IP not valid)");
-                return 0;
-            }
-        } else {
-            if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
-                $this->logger->debug("parse IP address: IP ver 6");
-                return 6;
-            } else {
-                $this->logger->debug("parse IP address: IP not valid)");
-                return 0;
-            }
-        }
     }
 }

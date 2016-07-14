@@ -17,7 +17,9 @@ class ParserTest extends \Codeception\TestCase\Test {
 
     protected function _before()
     {
-        $this->parser = new \Udger\Parser(\Codeception\Util\Stub::makeEmpty("Psr\Log\LoggerInterface"));
+        $this->parser = new \Udger\Parser(
+                \Codeception\Util\Stub::makeEmpty("Psr\Log\LoggerInterface"),
+                \Codeception\Util\Stub::makeEmpty("Udger\Helper\IP"));
         #$this->parser->setAccessKey("udger-php-unit");
         $this->parser->setDataDir(sys_get_temp_dir());
     }

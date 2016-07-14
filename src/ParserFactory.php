@@ -20,6 +20,6 @@ class ParserFactory {
         $log = new Logger($this->loggerName);
         $log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
 
-        return new Parser($log);
+        return new Parser($log, new Helper\IP());
     }
 }
