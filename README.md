@@ -27,7 +27,7 @@ Here's a quick example:
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 $factory = new Udger\ParserFactory();
 $parser = $factory->getParser();
-$parser->setDataDir(sys_get_temp_dir() . "/udgercache/");  
+$parser->setDataFile(sys_get_temp_dir() . "/udgercache/udgerdb_v3.dat");     
 $parser->setUA('Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.97 Safari/537.36');
 $parser->setIP("2A02:598:7000:116:0:0:0:101");
 $ret = $parser->parse();
