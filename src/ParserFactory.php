@@ -3,7 +3,8 @@
 namespace Udger;
 
 use Monolog\Logger;
-use Monolog\Handler\StreamHandler;
+use Monolog\Handler\NullHandler;
+use Psr\Log\LoggerInterface;
 
 /**
  * Description of ParserFactory
@@ -11,15 +12,47 @@ use Monolog\Handler\StreamHandler;
  * @author tiborb
  */
 class ParserFactory {
-
+    
+    /**
+     *
+     * @var string
+     */
     private $loggerName = 'udger';
-
-    public function getParser()
+    
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+    
+    /**
+     * @var string $dataFile path to the data file
+     */
+    private $dataFile;
+    
+    /**
+     * 
+     * @param string $dataFile path to the data file
+     * @param LoggerInterface $logger
+     */
+    public function __construct($dataFile, $logger = null)
     {
-        // create a log channel
-        $log = new Logger($this->loggerName);
-        $log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+        if (is_null($logger)) {
+            // create a log channel
+            $logger = new Logger($this->loggerName);
+            $logger->pushHandler(new NullHandler());
+        }
+        $this->dataFile = $dataFile;
+        $this->logger = $logger;
+    }
 
-        return new Parser($log);
+    /**
+     * 
+     * @return \Udger\Parser
+     */
+    public function getParser()
+    {   
+        $parser = new Parser($this->logger, new Helper\IP());
+        $parser->setDataFile($this->dataFile);
+        return $parser;
     }
 }

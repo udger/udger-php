@@ -10,17 +10,13 @@ interface ParserInterface {
     
     public function account();
     
-    public function isBot($useragent = "", $ip = "");
+    public function parse();
     
-    public function parse($useragent);
+    public function setUA($ua);
+    
+    public function setIP($ip);
     
     public function setAccessKey($access_key);
     
-    public function setAutoUpdate($value);
-    
-    public function setDataDir($data_dir);
-    
-    public function setParseFragments($parse_fragments);
-            
-    public function updateData();
+    public function setDataFile($path);
 }
