@@ -19,11 +19,17 @@ class ParserFactoryTest extends \Codeception\TestCase\Test {
 
     protected function _before()
     {
-        $this->factory = new ParserFactory();
+        $this->factory = new ParserFactory("/dev/null");
     }
     
     public function testGetParser()
     {
         $this->assertInstanceOf("Udger\Parser", $this->factory->getParser());
+    }
+    
+    public function testNewFactoryWithoutPathShouldFail()
+    {
+        $this->setExpectedException('PHPUnit_Framework_Exception');
+        new ParserFactory();
     }
 }

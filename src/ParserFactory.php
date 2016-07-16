@@ -25,17 +25,23 @@ class ParserFactory {
     private $logger;
     
     /**
+     * @var string $dataFile path to the data file
+     */
+    private $dataFile;
+    
+    /**
      * 
+     * @param string $dataFile path to the data file
      * @param LoggerInterface $logger
      */
-    public function __construct($logger = null)
+    public function __construct($dataFile, $logger = null)
     {
         if (is_null($logger)) {
             // create a log channel
             $logger = new Logger($this->loggerName);
             $logger->pushHandler(new NullHandler());
         }
-
+        $this->dataFile = $dataFile;
         $this->logger = $logger;
     }
 
@@ -45,6 +51,8 @@ class ParserFactory {
      */
     public function getParser()
     {   
-        return new Parser($this->logger, new Helper\IP());
+        $parser = new Parser($this->logger, new Helper\IP());
+        $parser->setDataFile($this->dataFile);
+        return $parser;
     }
 }

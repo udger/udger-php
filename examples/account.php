@@ -2,7 +2,7 @@
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
-$factory = new Udger\ParserFactory();
+$factory = new Udger\ParserFactory(sys_get_temp_dir() . "/udgercache/udgerdb_v3.dat");
 $parser = $factory->getParser();
 
 try {
