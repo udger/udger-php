@@ -14,4 +14,6 @@ interface IPInterface {
     public function getIpVersion($ip);
     
     public function getIpLong($ip);
+    
+    public function getIp6array($ip);
 }

@@ -500,10 +500,33 @@ class Parser implements ParserInterface
                         $ret['ip_address']['datacenter_homepage'] = $r['homepage'];
                     }
                 }
+                else if ($this->ipHelper->getIpVersion($ret['ip_address']['ip_ver']) === IPInterface::IPv6) {
+                    $ipInt = $this->ipHelper->getIp6array($ret['ip_address']['ip']);
+                    
+                    $this->dbdat->query("select name,name_code,homepage 
+                                          FROM udger_datacenter_range6
+                                          JOIN udger_datacenter_list ON udger_datacenter_range6.datacenter_id=udger_datacenter_list.id
+                                          where 
+                                          iplong_from0 <= ".$ipInt[0]." AND iplong_to0 >= ".$ipInt[0]." AND
+                                          iplong_from1 <= ".$ipInt[1]." AND iplong_to1 >= ".$ipInt[1]." AND
+                                          iplong_from2 <= ".$ipInt[2]." AND iplong_to2 >= ".$ipInt[2]." AND
+                                          iplong_from3 <= ".$ipInt[3]." AND iplong_to3 >= ".$ipInt[3]." AND
+                                          iplong_from4 <= ".$ipInt[4]." AND iplong_to4 >= ".$ipInt[4]." AND
+                                          iplong_from5 <= ".$ipInt[5]." AND iplong_to5 >= ".$ipInt[5]." AND
+                                          iplong_from6 <= ".$ipInt[6]." AND iplong_to6 >= ".$ipInt[6]." AND
+                                          iplong_from7 <= ".$ipInt[7]." AND iplong_to7 >= ".$ipInt[7]." 
+                                          ");
+                                                  
+                    if ($r = $q->fetchArray(SQLITE3_ASSOC)) {
+                        $ret['ip_address']['datacenter_name'] = $r['name'];
+                        $ret['ip_address']['datacenter_name_code'] = $r['name_code'];
+                        $ret['ip_address']['datacenter_homepage'] = $r['homepage'];
+                    }
+                }
             }
 
             $this->logger->debug("parse IP address: END, unset IP address");
-            $this->ua = '';
+            $this->ip = '';
         }
         return $ret;
     }
