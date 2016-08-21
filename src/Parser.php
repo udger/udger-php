@@ -199,6 +199,13 @@ class Parser implements ParserInterface
                 'device_class_icon' => '',
                 'device_class_icon_big' => '',
                 'device_class_info_url' => '',
+                'device_marketname'             => '',
+                'device_brand'                  => '',
+                'device_brand_code'             => '',
+                'device_brand_homepage'         => '',
+                'device_brand_icon'             => '',
+                'device_brand_icon_big'         => '',
+                'device_brand_info_url'         => '',
                 'crawler_last_seen' => '',
                 'crawler_category' => '',
                 'crawler_category_code' => '',
@@ -375,9 +382,9 @@ class Parser implements ParserInterface
                 }
                 if ($deviceclass_id == 0 AND $client_class_id != -1) {
                     $q = $this->dbdat->query("SELECT deviceclass_id,name,name_code,icon,icon_big 
-                                                  FROM udger_deviceclass_list
-                                                  JOIN udger_client_class ON udger_client_class.deviceclass_id=udger_deviceclass_list.id
-                                                  WHERE udger_client_class.id=" . $client_class_id . " ");
+                                              FROM udger_deviceclass_list
+                                              JOIN udger_client_class ON udger_client_class.deviceclass_id=udger_deviceclass_list.id
+                                              WHERE udger_client_class.id=" . $client_class_id . " ");
                     if ($r = $q->fetchArray(SQLITE3_ASSOC)) {
                         $this->logger->debug("parse useragent string: device found by deviceclass");
                         $deviceclass_id = $r['deviceclass_id'];
@@ -388,6 +395,39 @@ class Parser implements ParserInterface
                         $ret['user_agent']['device_class_info_url'] = "https://udger.com/resources/ua-list/device-detail?device=" . $r['name'];
                     }
                 }
+                
+                // device marketname
+                if($ret['user_agent']['os_family_code']) { 
+                    $q = $this->dbdat->query("SELECT id,regstring FROM udger_devicename_regex WHERE 
+                                              ((os_family_code='".$ret['user_agent']['os_family_code']."' AND os_code='-all-') 
+                                              OR 
+                                              (os_family_code='".$ret['user_agent']['os_family_code']."' AND os_code='".$ret['user_agent']['os_code']."'))
+                                              order by sequence");
+                    while ($r = $q->fetchArray(SQLITE3_ASSOC)) {
+                        @preg_match($r["regstring"],$this->ua,$result);
+                        if($result[1]) {
+                            $qC=$this->dbdat->query("SELECT marketname,brand_code,brand,brand_url,icon,icon_big
+                                                     FROM udger_devicename_list
+                                                     JOIN udger_devicename_brand ON udger_devicename_brand.id=udger_devicename_list.brand_id 
+                                                     WHERE regex_id=".$r["id"]." and code = '".trim($result[1])."' ");
+                            
+                            if($qC->numRows() > 0) {
+                                $rC=$q->fetchArray(SQLITE3_ASSOC);
+                                $this->logger->debug("parse useragent string: device marketname found");
+                                $ret['user_agent']['device_marketname']       = $rC['marketname'];
+                                $ret['user_agent']['device_brand']            = $rC['brand'];
+                                $ret['user_agent']['device_brand_code']       = $rC['brand_code'];
+                                $ret['user_agent']['device_brand_homepage']   = $rC['brand_url'];
+                                $ret['user_agent']['device_brand_icon']       = $rC['icon'];
+                                $ret['user_agent']['device_brand_icon_big']   = $rC['icon_big'];
+                                $ret['user_agent']['device_brand_info_url']   = "https://udger.com/resources/ua-list/devices-brand-detail?brand=".$rC['brand_code'];                             
+                              
+                                break;
+                            }                
+                        }
+                    }
+                }
+                
             }
 
             $this->logger->debug("parse useragent string: END, unset useragent string");
