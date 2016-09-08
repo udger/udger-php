@@ -256,7 +256,7 @@ class Parser implements ParserInterface
             $q = $this->dbdat->query("SELECT udger_crawler_list.id as botid,name,ver,ver_major,last_seen,respect_robotstxt,family,family_code,family_homepage,family_icon,vendor,vendor_code,vendor_homepage,crawler_classification,crawler_classification_code
                                           FROM udger_crawler_list
                                           LEFT JOIN udger_crawler_class ON udger_crawler_class.id=udger_crawler_list.class_id
-                                          WHERE ua_string='" . $this->ua . "'");
+                                          WHERE ua_string='" . $this->dbdat->escapeString($this->ua) . "'");
 
             if ($r = $q->fetchArray(SQLITE3_ASSOC)) {
                 $this->logger->debug("parse useragent string: crawler found");
