@@ -404,15 +404,15 @@ class Parser implements ParserInterface
                                               (os_family_code='".$ret['user_agent']['os_family_code']."' AND os_code='".$ret['user_agent']['os_code']."'))
                                               order by sequence");
                     while ($r = $q->fetchArray(SQLITE3_ASSOC)) {
-                        @preg_match($r["regstring"],$this->ua,$result);
+                        @preg_match($r["regstring"],$this->ua,$result);                        
+                        
                         if($result[1]) {
                             $qC=$this->dbdat->query("SELECT marketname,brand_code,brand,brand_url,icon,icon_big
                                                      FROM udger_devicename_list
                                                      JOIN udger_devicename_brand ON udger_devicename_brand.id=udger_devicename_list.brand_id 
                                                      WHERE regex_id=".$r["id"]." and code = '".trim($result[1])."' ");
                             
-                            if($qC->numRows() > 0) {
-                                $rC=$q->fetchArray(SQLITE3_ASSOC);
+                            if($rC = $qC->fetchArray(SQLITE3_ASSOC)) {
                                 $this->logger->debug("parse useragent string: device marketname found");
                                 $ret['user_agent']['device_marketname']       = $rC['marketname'];
                                 $ret['user_agent']['device_brand']            = $rC['brand'];
@@ -499,11 +499,10 @@ class Parser implements ParserInterface
                         $ret['ip_address']['datacenter_name_code'] = $r['name_code'];
                         $ret['ip_address']['datacenter_homepage'] = $r['homepage'];
                     }
-                }
-                else if ($this->ipHelper->getIpVersion($ret['ip_address']['ip_ver']) === IPInterface::IPv6) {
+                }                
+                else {
                     $ipInt = $this->ipHelper->getIp6array($ret['ip_address']['ip']);
-                    
-                    $this->dbdat->query("select name,name_code,homepage 
+                    $q = $this->dbdat->query("select name,name_code,homepage 
                                           FROM udger_datacenter_range6
                                           JOIN udger_datacenter_list ON udger_datacenter_range6.datacenter_id=udger_datacenter_list.id
                                           where 
