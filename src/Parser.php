@@ -500,7 +500,7 @@ class Parser implements ParserInterface
                         $ret['ip_address']['datacenter_homepage'] = $r['homepage'];
                     }
                 }                
-                else {
+                else if ($this->ipHelper->getIpVersion($ret['ip_address']['ip_ver']) === IPInterface::IPv6) {
                     $ipInt = $this->ipHelper->getIp6array($ret['ip_address']['ip']);
                     $q = $this->dbdat->query("select name,name_code,homepage 
                                           FROM udger_datacenter_range6
