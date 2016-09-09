@@ -537,7 +537,7 @@ class Parser implements ParserInterface
     {
         if (is_null($this->dbdat)) {
             $this->logger->debug(sprintf("db: open file: %s", $this->path));
-            $this->dbdat = new \SQLite3($this->path);
+            $this->dbdat = new \SQLite3($this->path, SQLITE3_OPEN_READONLY);
         }
     }
 
@@ -551,12 +551,8 @@ class Parser implements ParserInterface
     {
         if (false === file_exists($path)) {
             throw new \Exception(sprintf("%s does not exist", $path));
-        }
-        
-        if (false === is_writable($path)) {
-            throw new \Exception(sprintf("%s is not writable", $path));
-        }
-        
+        }        
+                
         $this->path = $path;
         
         return true;
