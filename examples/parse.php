@@ -5,6 +5,8 @@ require_once dirname(__DIR__) . '/vendor/autoload.php';
 // creates a new UdgerParser object
 $factory = new Udger\ParserFactory(sys_get_temp_dir() . "/udgercache/udgerdb_v3.dat");
 $parser = $factory->getParser();
+//$parser->setCacheEnable(false);
+//$parser->setCacheSize(4000);
 
 try {
     $parser->setUA('Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.97 Safari/537.36');
