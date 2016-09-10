@@ -126,6 +126,9 @@ Array
 ### Automatic updates download
 - for autoupdate data use Udger data updater (https://udger.com/support/documentation/?doc=62)
 
+### Documentation for programmers
+- https://udger.com/pub/documentation/parser/PHP/html/
+
 ### Author
 - The Udger.com Team (info@udger.com)
                 
