@@ -513,9 +513,9 @@ class Parser implements ParserInterface
                     $ret['ip_address']['ip_classification_code'] = 'unrecognized';
                 }
                 
-                if ($this->ipHelper->getIpVersion($ret['ip_address']['ip_ver']) === IPInterface::IPv4) {
+                if ($this->ipHelper->getIpVersion($ret['ip_address']['ip']) === IPInterface::IPv4) {
                     
-                    $ipLong = $this->ipHelper->getIpLongsprintf($ret['ip_address']['ip']);
+                    $ipLong = $this->ipHelper->getIpLong($ret['ip_address']['ip']);
                     
                     $q = $this->dbdat->query("select name,name_code,homepage 
                                        FROM udger_datacenter_range
@@ -528,7 +528,7 @@ class Parser implements ParserInterface
                         $ret['ip_address']['datacenter_homepage'] = $r['homepage'];
                     }
                 }                
-                else if ($this->ipHelper->getIpVersion($ret['ip_address']['ip_ver']) === IPInterface::IPv6) {
+                else if ($this->ipHelper->getIpVersion($ret['ip_address']['ip']) === IPInterface::IPv6) {
                     $ipInt = $this->ipHelper->getIp6array($ret['ip_address']['ip']);
                     $q = $this->dbdat->query("select name,name_code,homepage 
                                           FROM udger_datacenter_range6

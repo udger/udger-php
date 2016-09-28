@@ -22,7 +22,7 @@ class IP implements IPInterface{
             return self::IPv6;
         }
 
-        if (false !== filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+        else if (false !== filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
             return self::IPv4;
         }
         // invalid ip
