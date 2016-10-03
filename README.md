@@ -28,7 +28,7 @@ require_once dirname(__DIR__) . '/vendor/autoload.php';
 $factory = new Udger\ParserFactory();
 $parser = $factory->getParser();
 $parser->setDataFile(sys_get_temp_dir() . "/udgercache/udgerdb_v3.dat");     
-$parser->setUA('Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.97 Safari/537.36');
+$parser->setUA('Mozilla/5.0 (Linux; Android 5.1.1; SAMSUNG SM-A510F Build/LMY47X) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/3.5 Chrome/38.0.2125.102 Mobile Safari/537.36');
 $parser->setIP("2A02:598:7000:116:0:0:0:101");
 $ret = $parser->parse();
 echo "<pre>";
@@ -38,41 +38,46 @@ echo "</pre>";
 
 Array
 (
-    [user_agent] => Array
+        [user_agent] => Array
         (
-            [ua_string] => Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.97 Safari/537.36
-            [ua_class] => Browser
-            [ua_class_code] => browser
-            [ua] => Chrome 48.0.2564.97
-            [ua_version] => 48.0.2564.97
-            [ua_version_major] => 48
-            [ua_uptodate_current_version] => 48
-            [ua_family] => Chrome
-            [ua_family_code] => chrome
-            [ua_family_homepage] => http://www.google.com/chrome/
-            [ua_family_vendor] => Google Inc.
-            [ua_family_vendor_code] => google_inc
-            [ua_family_vendor_homepage] => https://www.google.com/about/company/
-            [ua_family_icon] => chrome.png
-            [ua_family_icon_big] => chrome_big.png
-            [ua_family_info_url] => https://udger.com/resources/ua-list/browser-detail?browser=Chrome
+            [ua_string] => Mozilla/5.0 (Linux; Android 5.1.1; SAMSUNG SM-A510F Build/LMY47X) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/3.5 Chrome/38.0.2125.102 Mobile Safari/537.36
+            [ua_class] => Mobile browser
+            [ua_class_code] => mobile_browser
+            [ua] => Mobile Samsung Browser 3.5
+            [ua_version] => 3.5
+            [ua_version_major] => 3
+            [ua_uptodate_current_version] => 
+            [ua_family] => Mobile Samsung Browser
+            [ua_family_code] => mobile_samsung_browser
+            [ua_family_homepage] => http://developer.samsung.com/internet
+            [ua_family_vendor] => SAMSUNG
+            [ua_family_vendor_code] => samsung
+            [ua_family_vendor_homepage] => http://www.samsung.com/
+            [ua_family_icon] => samsung_browser.png
+            [ua_family_icon_big] => samsung_browser_big.png
+            [ua_family_info_url] => https://udger.com/resources/ua-list/browser-detail?browser=Mobile Samsung Browser
             [ua_engine] => WebKit/Blink
-            [os] => Windows 7
-            [os_code] => windows_7
-            [os_homepage] => https://en.wikipedia.org/wiki/Windows_7
-            [os_icon] => windows-7.png
-            [os_icon_big] => windows-7_big.png
-            [os_info_url] => https://udger.com/resources/ua-list/os-detail?os=Windows 7
-            [os_family] => Windows
-            [os_family_code] => windows
-            [os_family_vendor] => Microsoft Corporation.
-            [os_family_vendor_code] => microsoft_corporation
-            [os_family_vendor_homepage] => https://www.microsoft.com/about/
-            [device_class] => Desktop
-            [device_class_code] => desktop
-            [device_class_icon] => desktop.png
-            [device_class_icon_big] => desktop_big.png
-            [device_class_info_url] => https://udger.com/resources/ua-list/device-detail?device=Desktop
+            [os] => Android 5.1 lollipop
+            [os_code] => android_5_1
+            [os_homepage] => https://en.wikipedia.org/wiki/Android_Lollipop
+            [os_icon] => android.png
+            [os_icon_big] => android_big.png
+            [os_info_url] => https://udger.com/resources/ua-list/os-detail?os=Android 5.1 lollipop
+            [os_family] => Android
+            [os_family_code] => android
+            [os_family_vendor] => Google, Inc.
+            [os_family_vendor_code] => google_inc
+            [os_family_vendor_homepage] => https://www.google.com/about/company/
+            [device_class] => Smartphone
+            [device_class_code] => smartphone
+            [device_class_icon] => phone.png
+            [device_class_icon_big] => phone_big.png
+            [device_class_info_url] => https://udger.com/resources/ua-list/device-detail?device=Smartphone
+            [device_marketname] => Galaxy A5 (2016)
+            [device_vendor] => Samsung
+            [device_vendor_code] => samsung
+            [device_vendor_homepage] => http://www.samsung.com/
+            [device_vendor_icon] => samsung.png
             [crawler_last_seen] => 
             [crawler_category] => 
             [crawler_category_code] => 
@@ -120,6 +125,9 @@ Array
 
 ### Automatic updates download
 - for autoupdate data use Udger data updater (https://udger.com/support/documentation/?doc=62)
+
+### Documentation for programmers
+- https://udger.com/pub/documentation/parser/PHP/html/
 
 ### Author
 - The Udger.com Team (info@udger.com)
