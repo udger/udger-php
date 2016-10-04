@@ -431,7 +431,7 @@ class Parser implements ParserInterface
                         while ($r = $q->fetchArray(SQLITE3_ASSOC)) {
                             @preg_match($r["regstring"],$this->ua,$result);                        
 
-                            if($result[1]) {
+                            if(array_key_exists(1, $result)) {
                                 $qC=$this->dbdat->query("SELECT marketname,brand_code,brand,brand_url,icon,icon_big
                                                          FROM udger_devicename_list
                                                          JOIN udger_devicename_brand ON udger_devicename_brand.id=udger_devicename_list.brand_id 
