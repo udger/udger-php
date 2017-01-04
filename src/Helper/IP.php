@@ -22,7 +22,7 @@ class IP implements IPInterface{
             return self::IPv6;
         }
 
-        if (false !== filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+        else if (false !== filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
             return self::IPv4;
         }
         // invalid ip
@@ -38,5 +38,27 @@ class IP implements IPInterface{
     public function getIpLong($ip)
     {
         return sprintf('%u', ip2long($ip));
+    }
+    
+    
+    /**
+     * Ipv6 to array
+     * 
+     * @param string $ip
+     * @return array
+     */
+    public function getIp6array($ip){
+      // expand - example: "2600:3c00::" ->  "2600:3c00:0000:0000:0000:0000:0000:0000"
+      $hex = unpack("H*hex", inet_pton($ip));         
+      $ipStr = substr(preg_replace("/([A-f0-9]{4})/", "$1:", $hex['hex']), 0, -1);
+      
+      $ipIntArray = array();
+      $ipStrArray = split(":", $ipStr);
+      
+      foreach ($ipStrArray as &$value) {
+        $ipIntArray[] = hexdec($value);
+      }
+      
+      return $ipIntArray;
     }
 }
