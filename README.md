@@ -1,7 +1,8 @@
 # Udger client for PHP (data ver. 3)
 Local parser is very fast and accurate useragent string detection solution. Enables developers to locally install and integrate a highly-scalable product.
-We provide the detection of the devices (personal computer, tablet, Smart TV, Game console etc.), operating system and client SW type (browser, e-mail client etc.).
-It also provides information about IP addresses (Public proxies, VPN services, Tor exit nodes, Fake crawlers, Web scrapers .. etc.)
+We provide the detection of the devices (personal computer, tablet, Smart TV, Game console etc.), operating system, client SW type (browser, e-mail client etc.)
+and devices market name (example: Sony Xperia Tablet S, Nokia Lumia 820 etc.).
+It also provides information about IP addresses (Public proxies, VPN services, Tor exit nodes, Fake crawlers, Web scrapers, Datacenter name .. etc.)
 
 - Tested with more the 50.000 unique user agents.
 - Up to date data provided by https://udger.com/
@@ -9,14 +10,14 @@ It also provides information about IP addresses (Public proxies, VPN services, T
 ### Requirements
  - php >= 5.3.0
  - ext-sqlite3 (http://php.net/manual/en/book.sqlite3.php)
+ - datafile v3 (udgerdb_v3.dat) from https://data.udger.com/ 
 
 ### Features
 - Fast
 - LRU cache
 - Released under the GNU (LGPL v.3)
 
-### Install
-
+### Install 
     composer install
 
 ### Usage
