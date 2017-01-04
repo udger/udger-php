@@ -12,6 +12,7 @@ It also provides information about IP addresses (Public proxies, VPN services, T
 
 ### Features
 - Fast
+- LRU cache
 - Released under the GNU (LGPL v.3)
 
 ### Install
@@ -27,7 +28,9 @@ Here's a quick example:
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 $factory = new Udger\ParserFactory();
 $parser = $factory->getParser();
-$parser->setDataFile(sys_get_temp_dir() . "/udgercache/udgerdb_v3.dat");     
+$parser->setDataFile(sys_get_temp_dir() . "/udgercache/udgerdb_v3.dat");
+//$parser->setCacheEnable(false);
+//$parser->setCacheSize(4000);     
 $parser->setUA('Mozilla/5.0 (Linux; Android 5.1.1; SAMSUNG SM-A510F Build/LMY47X) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/3.5 Chrome/38.0.2125.102 Mobile Safari/537.36');
 $parser->setIP("2A02:598:7000:116:0:0:0:101");
 $ret = $parser->parse();
