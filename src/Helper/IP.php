@@ -53,7 +53,7 @@ class IP implements IPInterface{
       $ipStr = substr(preg_replace("/([A-f0-9]{4})/", "$1:", $hex['hex']), 0, -1);
       
       $ipIntArray = array();
-      $ipStrArray = split(":", $ipStr);
+      $ipStrArray = explode(":", $ipStr);
       
       foreach ($ipStrArray as &$value) {
         $ipIntArray[] = hexdec($value);
