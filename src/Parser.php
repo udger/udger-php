@@ -435,7 +435,7 @@ class Parser implements ParserInterface
                                 $qC=$this->dbdat->query("SELECT marketname,brand_code,brand,brand_url,icon,icon_big
                                                          FROM udger_devicename_list
                                                          JOIN udger_devicename_brand ON udger_devicename_brand.id=udger_devicename_list.brand_id 
-                                                         WHERE regex_id=".$r["id"]." and code = '".trim($result[1])."' COLLATE NOCASE  ");
+                                                         WHERE regex_id=".$r["id"]." and code = '".\SQLite3::escapeString(trim($result[1]))."' COLLATE NOCASE  ");
 
                                 if($rC = $qC->fetchArray(SQLITE3_ASSOC)) {
                                     $this->logger->debug("parse useragent string: device marketname found");
