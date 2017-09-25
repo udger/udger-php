@@ -18,7 +18,7 @@ It also provides information about IP addresses (Public proxies, VPN services, T
 - Released under the GNU (LGPL v.3)
 
 ### Install 
-    composer install
+    composer require udger/udger-php
 
 ### Usage
 You should review the included examples (`parse.php`, `account.php`)
