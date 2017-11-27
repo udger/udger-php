@@ -15,7 +15,7 @@ It also provides information about IP addresses (Public proxies, VPN services, T
 ### Features
 - Fast
 - LRU cache
-- Released under the GNU (LGPL v.3)
+- Released under the MIT
 
 ### Install 
     composer require udger/udger-php
