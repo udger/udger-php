@@ -8,7 +8,7 @@ It also provides information about IP addresses (Public proxies, VPN services, T
 - Up to date data provided by https://udger.com/
 
 ### Requirements
- - php >= 5.3.0
+ - php >= 5.5.0
  - ext-sqlite3 (http://php.net/manual/en/book.sqlite3.php)
  - datafile v3 (udgerdb_v3.dat) from https://data.udger.com/ 
 
