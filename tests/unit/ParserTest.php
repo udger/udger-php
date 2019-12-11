@@ -32,7 +32,7 @@ class ParserTest extends \Codeception\TestCase\Test {
     // tests
     public function testSetDataFile()
     {
-        $this->setExpectedException("Exception");
+        $this->expectException(\Exception::class);
         $this->assertTrue($this->parser->setDataFile("/this/is/a/missing/path"));
     }
 
@@ -58,8 +58,8 @@ class ParserTest extends \Codeception\TestCase\Test {
     }
 
     public function testAccount()
-    {   
-        $this->setExpectedException("Exception");
+    {
+        $this->expectException(\Exception::class);
         $this->parser->account("test key");
     }
 }
