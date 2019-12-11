@@ -25,8 +25,8 @@ class ParserAccountTest extends \Codeception\TestCase\Test
                 \Codeception\Util\Stub::makeEmpty("Psr\Log\LoggerInterface"),
                 \Codeception\Util\Stub::makeEmpty("Udger\Helper\IP"));
         $parser->setAccessKey("nosuchkey");
-        
-        $this->setExpectedException("Exception");
+
+        $this->expectException(\Exception::class);
         $parser->account();
     }
     
@@ -36,7 +36,8 @@ class ParserAccountTest extends \Codeception\TestCase\Test
                 \Codeception\Util\Stub::makeEmpty("Psr\Log\LoggerInterface"),
                 \Codeception\Util\Stub::makeEmpty("Udger\Helper\IP"));
         
-        $this->setExpectedException("Exception", "access key not set");
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('access key not set');
         $parser->account();
     }
 }

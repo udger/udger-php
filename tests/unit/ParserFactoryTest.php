@@ -26,10 +26,4 @@ class ParserFactoryTest extends \Codeception\TestCase\Test {
     {
         $this->assertInstanceOf("Udger\Parser", $this->factory->getParser());
     }
-    
-    public function testNewFactoryWithoutPathShouldFail()
-    {
-        $this->setExpectedException('PHPUnit_Framework_Exception');
-        new ParserFactory();
-    }
 }
