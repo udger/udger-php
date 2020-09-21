@@ -1,5 +1,5 @@
 {
-    "name": "udger/udger-php",
+    "name": "scn/udger-php",
     "description": "PHP agent string parser based on Udger https://udger.com/products/local_parser",
     "authors": [
         {
