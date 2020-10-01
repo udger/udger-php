@@ -1,26 +1,27 @@
 {
-    "name": "scn/udger-php",
-    "description": "PHP agent string parser based on Udger https://udger.com/products/local_parser",
-    "authors": [
-        {
-            "name": "The Udger.com Team",
-            "email": "info@udger.com"
-        }
-    ],
-    "type": "library",
-    "license": "MIT",
-    "version": "3.1.3",
-    "require":{
-      "php": ">=5.5.0",
-      "ext-sqlite3": "*",
-        "guzzlehttp/guzzle": "^6.2",
-        "monolog/monolog": "^1.20 || ^2"
-    },
-    "require-dev": {
-        "codeception/codeception": "^3"
-    },
-    "minimum-stability": "dev",
-    "autoload": {
-        "psr-4": {"Udger\\": "src/"}
+  "name": "scn/udger-php",
+  "description": "PHP agent string parser based on Udger https://udger.com/products/local_parser",
+  "authors": [
+    {
+      "name": "The Udger.com Team",
+      "email": "info@udger.com"
     }
+  ],
+  "type": "library",
+  "license": "MIT",
+  "require": {
+    "php": ">=5.5.0",
+    "ext-sqlite3": "*",
+    "guzzlehttp/guzzle": "^6.2",
+    "monolog/monolog": "^1.20 || ^2"
+  },
+  "require-dev": {
+    "codeception/codeception": "^3"
+  },
+  "minimum-stability": "dev",
+  "autoload": {
+    "psr-4": {
+      "Udger\\": "src/"
+    }
+  }
 }
