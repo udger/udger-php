@@ -2,6 +2,8 @@
 
 namespace tests\Udger;
 
+use Udger\ParserInterface;
+
 class ParserFunctionalTest extends \Codeception\TestCase\Test
 {
     /**
@@ -11,15 +13,15 @@ class ParserFunctionalTest extends \Codeception\TestCase\Test
 
     /**
      *
-     * @var Parser
+     * @var ParserInterface
      */
     protected $parser;
 
     protected function _before()
     {
         $this->parser = new \Udger\Parser(
-                \Codeception\Util\Stub::makeEmpty("Psr\Log\LoggerInterface"),
-                \Codeception\Util\Stub::makeEmpty("Udger\Helper\IP"));
+            \Codeception\Util\Stub::makeEmpty("Udger\Helper\IP")
+        );
         $this->parser->setDataFile(dirname(__DIR__) . "/fixtures/udgercache/udgerdb_v3.dat");
     }
 
@@ -78,14 +80,11 @@ class ParserFunctionalTest extends \Codeception\TestCase\Test
     {
         $useragent = 'Lynx/2.8.6rel.5 libwww-FM/2.14 SSL-MM/1.4.1 OpenSSL/1.0.0a';
         $result = $this->parser->parse($useragent);
-        
     }
     
     public function testParseRandomString()
     {
-        
         $result = $this->parser->parse("loremlipsum");
-       
     }
     
     public function testParseEmpty()

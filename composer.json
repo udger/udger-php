@@ -10,10 +10,8 @@
   "type": "library",
   "license": "MIT",
   "require": {
-    "php": ">=5.5.0",
-    "ext-sqlite3": "*",
-    "guzzlehttp/guzzle": "^6.2",
-    "monolog/monolog": "^1.20 || ^2"
+    "php": ">=7.4",
+    "ext-sqlite3": "*"
   },
   "require-dev": {
     "codeception/codeception": "^3"
@@ -23,5 +21,8 @@
     "psr-4": {
       "Udger\\": "src/"
     }
+  },
+  "scripts": {
+    "test": "vendor/bin/codecept run"
   }
 }

@@ -8,7 +8,8 @@ use Udger\Helper\IP;
  *
  * @author tiborb
  */
-class ParserFactoryTest extends \Codeception\TestCase\Test {
+class ParserFactoryTest extends \Codeception\TestCase\Test
+{
 
     /**
      * @var \UnitGuy

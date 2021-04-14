@@ -1,183 +1,52 @@
 <?php
-/**
- * UdgerParser - Local parser class
- * 
- * @package    UdgerParser
- * @author     The Udger.com Team (info@udger.com)
- * @license    http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License
- * @link       http://udger.com/products/local_parser
- */
 
 namespace Udger;
 
-use Psr\Log\LoggerInterface;
 use Udger\Helper\IPInterface;
 
-/**
- * udger.com Local Parser Class
- * 
- * @package UdgerParser
- */
 class Parser implements ParserInterface
 {
-    
-    /**
-     * Default timeout for network requests
-     * 
-     * @type integer
-     */
-    protected $timeout = 60; // in seconds
+    protected string $path;
 
-    /**
-     * Api URL
-     * 
-     * @type string
-     */
-    protected $api_url = 'http://api.udger.com/v3';
+    protected string $ip;
 
-    /**
-     * Path to the data file
-     * 
-     * @type string
-     */
-    protected $path;
-
-    /**
-     * Personal access key
-     * 
-     * @type string
-     */
-    protected $access_key;
-
-    /**
-     * IP address for parse
-     * 
-     * @type string
-     */
-    protected $ip;
-
-    /**
-     * Useragent string for parse
-     * 
-     * @type string
-     */
-    protected $ua;
+    protected ?string $ua;
 
     /**
      * DB link
-     * 
+     *
      * @type object
      */
     protected $dbdat;
     
-    /**
-     * @var IPInterface 
-     */
-    protected $ipHelper;
-    
-    /**
-     * @boolean LRU cache enable/disable
-     */
-    protected $cacheEnable = true;
-    
-    /**
-     * @array LRU cache
-     */
-    protected $cache = array();
-    
-    /**
-     * @int LRU cache size
-     */
-    protected $cacheSize = 3000;
+    protected IPInterface $ipHelper;
 
-    /**
-     * @param LoggerInterface $logger
-     * @param IPInterface
-     */
-    public function __construct(LoggerInterface $logger, IPInterface $ipHelper)
+    protected bool $cacheEnable = true;
+
+    protected array $cache = [];
+
+    protected int $cacheSize = 3000;
+
+    public function __construct(IPInterface $ipHelper)
     {
-        $this->logger = $logger;
         $this->ipHelper = $ipHelper;
     }
 
-    /**
-     * Check your subscription
-     * 
-     * @return array
-     */
-    public function account()
+    public function setUA(?string $ua): bool
     {
-        $this->logger->debug("account: start");
-
-        if (empty($this->access_key)) {
-            throw new \Exception("access key not set");
-        }
-
-        $accountUrl = sprintf("%s/%s", $this->api_url, "account");
-        $client = new \GuzzleHttp\Client();
-
-        $result = $client->post($accountUrl, array(
-            'multipart' => array(
-                array(
-                    'name' => 'accesskey',
-                    'contents' => $this->access_key
-                )
-            ),
-            'timeout' => $this->timeout
-        ));
-
-        $contents = $result->getBody()->getContents();
-        $data = json_decode($contents, true);
-
-        // check for non zero staus codes
-        if (isset($data['flag']) && $data['flag'] > 0) {
-            throw new \Exception($data['errortext']);
-        }
-
-        return $data;
-    }
-
-    /**
-     * Set the useragent string
-     * 
-     * @param string
-     * @return bool
-     */
-    public function setUA($ua)
-    {
-        $this->logger->debug('setting: set useragent string to ' . $ua);
         $this->ua = $ua;
         return true;
     }
 
-    /**
-     * Set the IP address
-     * 
-     * @param string
-     * @return bool
-     */
-    public function setIP($ip)
+    public function setIP(string $ip): bool
     {
-        $this->logger->debug('setting: set IP address to ' . $ip);
         $this->ip = $ip;
         return true;
     }
 
-    /**
-     * Parse the useragent string and/or IP
-     * 
-     * @return array
-     */
-    public function parse()
+    public function parse(): array
     {
         $this->setDBdat();
-
-        // validate
-        if (is_null($this->dbdat) === true) {
-            $this->logger->debug('db: data file not found, download the data manually from http://data.udger.com/');
-            return array('flag' => 3,
-                'errortext' => 'data file not found');
-        }
 
         //ret values
         $ret = array('user_agent' =>
@@ -258,17 +127,15 @@ class Parser implements ParserInterface
         );
 
         if (!empty($this->ua)) {
-            $this->logger->debug("parse useragent string: START (useragent: " . $this->ua . ")");
-            
             $usedCache = false;
-            if($this->cacheEnable) {
-                $retCache = $this->getCache( md5($this->ua) );
-                if($retCache) {
+            if ($this->cacheEnable) {
+                $retCache = $this->getCache(md5($this->ua));
+                if ($retCache) {
                     $ret['user_agent'] = unserialize($retCache);
                     $usedCache = true;
                 }
             }
-            if(!$usedCache) {             
+            if (!$usedCache) {
                 $client_id = 0;
                 $client_class_id = -1;
                 $os_id = 0;
@@ -277,15 +144,13 @@ class Parser implements ParserInterface
                 $ret['user_agent']['ua_class'] = 'Unrecognized';
                 $ret['user_agent']['ua_class_code'] = 'unrecognized';
 
-                // crawler            
+                // crawler
                 $q = $this->dbdat->query("SELECT udger_crawler_list.id as botid,name,ver,ver_major,last_seen,respect_robotstxt,family,family_code,family_homepage,family_icon,vendor,vendor_code,vendor_homepage,crawler_classification,crawler_classification_code
                                               FROM udger_crawler_list
                                               LEFT JOIN udger_crawler_class ON udger_crawler_class.id=udger_crawler_list.class_id
                                               WHERE ua_string='" . $this->dbdat->escapeString($this->ua) . "'");
 
                 if ($r = $q->fetchArray(SQLITE3_ASSOC)) {
-                    $this->logger->debug("parse useragent string: crawler found");
-
                     $client_class_id = 99;
                     $ret['user_agent']['ua_class'] = 'Crawler';
                     $ret['user_agent']['ua_class_code'] = 'crawler';
@@ -313,7 +178,6 @@ class Parser implements ParserInterface
                                                   ORDER BY sequence ASC");
                     while ($r = $q->fetchArray(SQLITE3_ASSOC)) {
                         if (@preg_match($r["regstring"], $this->ua, $result)) {
-                            $this->logger->debug("parse useragent string: client found");
                             $client_id = $r['client_id'];
                             $client_class_id = $r['class_id'];
                             $ret['user_agent']['ua_class'] = $r['client_classification'];
@@ -349,7 +213,6 @@ class Parser implements ParserInterface
                                                   ORDER BY sequence ASC");
                     while ($r = $q->fetchArray(SQLITE3_ASSOC)) {
                         if (@preg_match($r["regstring"], $this->ua, $result)) {
-                            $this->logger->debug("parse useragent string: os found");
                             $os_id = $r['os_id'];
                             $ret['user_agent']['os'] = $r['name'];
                             $ret['user_agent']['os_code'] = $r['name_code'];
@@ -366,13 +229,12 @@ class Parser implements ParserInterface
                         }
                     }
                     // client_os_relation
-                    if ($os_id == 0 AND $client_id != 0) {
+                    if ($os_id == 0 and $client_id != 0) {
                         $q = $this->dbdat->query("SELECT os_id,family,family_code,name,name_code,homepage,icon,icon_big,vendor,vendor_code,vendor_homepage
                                                       FROM udger_client_os_relation
                                                       JOIN udger_os_list ON udger_os_list.id=udger_client_os_relation.os_id
                                                       WHERE client_id=" . $client_id . " ");
                         if ($r = $q->fetchArray(SQLITE3_ASSOC)) {
-                            $this->logger->debug("parse useragent string: client os relation found");
                             $os_id = $r['os_id'];
                             $ret['user_agent']['os'] = $r['name'];
                             $ret['user_agent']['os_code'] = $r['name_code'];
@@ -395,7 +257,6 @@ class Parser implements ParserInterface
 
                     while ($r = $q->fetchArray(SQLITE3_ASSOC)) {
                         if (@preg_match($r["regstring"], $this->ua, $result)) {
-                            $this->logger->debug("parse useragent string: device found by regex");
                             $deviceclass_id = $r['deviceclass_id'];
                             $ret['user_agent']['device_class'] = $r['name'];
                             $ret['user_agent']['device_class_code'] = $r['name_code'];
@@ -405,13 +266,12 @@ class Parser implements ParserInterface
                             break;
                         }
                     }
-                    if ($deviceclass_id == 0 AND $client_class_id != -1) {
+                    if ($deviceclass_id == 0 and $client_class_id != -1) {
                         $q = $this->dbdat->query("SELECT deviceclass_id,name,name_code,icon,icon_big 
                                                   FROM udger_deviceclass_list
                                                   JOIN udger_client_class ON udger_client_class.deviceclass_id=udger_deviceclass_list.id
                                                   WHERE udger_client_class.id=" . $client_class_id . " ");
                         if ($r = $q->fetchArray(SQLITE3_ASSOC)) {
-                            $this->logger->debug("parse useragent string: device found by deviceclass");
                             $deviceclass_id = $r['deviceclass_id'];
                             $ret['user_agent']['device_class'] = $r['name'];
                             $ret['user_agent']['device_class_code'] = $r['name_code'];
@@ -422,55 +282,51 @@ class Parser implements ParserInterface
                     }
 
                     // device marketname
-                    if($ret['user_agent']['os_family_code']) { 
+                    if ($ret['user_agent']['os_family_code']) {
                         $q = $this->dbdat->query("SELECT id,regstring FROM udger_devicename_regex WHERE 
                                                   ((os_family_code='".$ret['user_agent']['os_family_code']."' AND os_code='-all-') 
                                                   OR 
                                                   (os_family_code='".$ret['user_agent']['os_family_code']."' AND os_code='".$ret['user_agent']['os_code']."'))
                                                   order by sequence");
                         while ($r = $q->fetchArray(SQLITE3_ASSOC)) {
-                            @preg_match($r["regstring"],$this->ua,$result);                        
+                            @preg_match($r["regstring"], $this->ua, $result);
 
-                            if(array_key_exists(1, $result)) {
+                            if (array_key_exists(1, $result)) {
                                 $qC=$this->dbdat->query("SELECT marketname,brand_code,brand,brand_url,icon,icon_big
                                                          FROM udger_devicename_list
                                                          JOIN udger_devicename_brand ON udger_devicename_brand.id=udger_devicename_list.brand_id 
                                                          WHERE regex_id=".$r["id"]." and code = '".\SQLite3::escapeString(trim($result[1]))."' COLLATE NOCASE  ");
 
-                                if($rC = $qC->fetchArray(SQLITE3_ASSOC)) {
-                                    $this->logger->debug("parse useragent string: device marketname found");
+                                if ($rC = $qC->fetchArray(SQLITE3_ASSOC)) {
                                     $ret['user_agent']['device_marketname']       = $rC['marketname'];
                                     $ret['user_agent']['device_brand']            = $rC['brand'];
                                     $ret['user_agent']['device_brand_code']       = $rC['brand_code'];
                                     $ret['user_agent']['device_brand_homepage']   = $rC['brand_url'];
                                     $ret['user_agent']['device_brand_icon']       = $rC['icon'];
                                     $ret['user_agent']['device_brand_icon_big']   = $rC['icon_big'];
-                                    $ret['user_agent']['device_brand_info_url']   = "https://udger.com/resources/ua-list/devices-brand-detail?brand=".$rC['brand_code'];                             
+                                    $ret['user_agent']['device_brand_info_url']   = "https://udger.com/resources/ua-list/devices-brand-detail?brand=".$rC['brand_code'];
 
                                     break;
-                                }                
+                                }
                             }
                         }
                     }
-                    if($this->cacheEnable) {
-                        $this->setCache( md5($this->ua) , serialize($ret['user_agent']) );
+                    if ($this->cacheEnable) {
+                        $this->setCache(md5($this->ua), serialize($ret['user_agent']));
                     }
                 }
             }
 
-            $this->logger->debug("parse useragent string: END, unset useragent string");
             $this->ua = '';
         }
 
         if (!empty($this->ip)) {
-            $this->logger->debug("parse IP address: START (IP: " . $this->ip . ")");
             $ret['ip_address']['ip'] = $this->ip;
             $ipver = $this->ipHelper->getIpVersion($this->ip);
             
             if ($ipver !== false) {
                 if ($ipver === IPInterface::IPv6) {
                     $this->ip = inet_ntop(inet_pton($this->ip));
-                    $this->logger->debug("compress IP address is:" . $this->ip);
                 }
 
                 $ret['ip_address']['ip_ver'] = $ipver;
@@ -514,7 +370,6 @@ class Parser implements ParserInterface
                 }
                 
                 if ($this->ipHelper->getIpVersion($ret['ip_address']['ip']) === IPInterface::IPv4) {
-                    
                     $ipLong = $this->ipHelper->getIpLong($ret['ip_address']['ip']);
                     
                     $q = $this->dbdat->query("select name,name_code,homepage 
@@ -527,8 +382,7 @@ class Parser implements ParserInterface
                         $ret['ip_address']['datacenter_name_code'] = $r['name_code'];
                         $ret['ip_address']['datacenter_homepage'] = $r['homepage'];
                     }
-                }                
-                else if ($this->ipHelper->getIpVersion($ret['ip_address']['ip']) === IPInterface::IPv6) {
+                } elseif ($this->ipHelper->getIpVersion($ret['ip_address']['ip']) === IPInterface::IPv6) {
                     $ipInt = $this->ipHelper->getIp6array($ret['ip_address']['ip']);
                     $q = $this->dbdat->query("select name,name_code,homepage 
                                           FROM udger_datacenter_range6
@@ -552,116 +406,67 @@ class Parser implements ParserInterface
                 }
             }
 
-            $this->logger->debug("parse IP address: END, unset IP address");
             $this->ip = '';
         }
         return $ret;
     }
 
     /**
-     * Open DB file 
+     * Open DB file
      */
     protected function setDBdat()
     {
         if (is_null($this->dbdat)) {
-            $this->logger->debug(sprintf("db: open file: %s", $this->path));
             $this->dbdat = new \SQLite3($this->path, SQLITE3_OPEN_READONLY);
         }
     }
-    
-    /**
-     * LRU cashe set 
-     */
-    protected function setCache($key, $value) {
-        $this->logger->debug('LRUcache: set to key' . $key);
+
+    protected function setCache(string $key, string $value): void
+    {
         $this->cache[$key] = $value;
         if (count($this->cache) > $this->cacheSize) {
             array_shift($this->cache);
         }
     }
-    
-    /**
-     * LRU cashe get 
-     */
-    protected function getCache($key) {
-        $this->logger->debug('LRUcache: get key' . $key);
-        if ( ! isset($this->cache[$key])) {
-            $this->logger->debug('LRUcache: key' . $key . ' Not Found' );
+
+    protected function getCache($key): ?string
+    {
+        if (! isset($this->cache[$key])) {
             return null;
         }
         // Put the value gotten to last.
         $tmpValue = $this->cache[$key];
         unset($this->cache[$key]);
         $this->cache[$key] = $tmpValue;
-        $this->logger->debug('LRUcache: key' . $key . ' Found' );
         return $tmpValue;
-    }   
-    
-    /**
-     * Set LRU cache enable/disable
-     * 
-     * @param bool
-     * @return bool
-     */
-    public function setCacheEnable($set)
+    }
+
+    public function setCacheEnable(bool $set): bool
     {
         $this->cacheEnable = $set;
-        $log = $set ? 'true' : 'false';
-        $this->logger->debug('LRUcache: enable/disable: ' . $log );
-        return true;
-    }
-    
-    /**
-     * Set LRU cache enable/disable
-     * 
-     * @param Int
-     * @return bool
-     */
-    public function setCacheSize($size)
-    {
-        $this->cacheSize = $size;
-        $this->logger->debug('LRUcache: set size: ' . $size );
-        return true;
-    }
-    /**
-     * Clear LRU cache 
-     * 
-     * @return bool
-     */
-    public function clearCache()
-    {
-        $this->cache = array();
-        $this->logger->debug('LRUcache: clear cache');
-        return true;
-    }
-    
-    /**
-     * Set path to sqlite file
-     * 
-     * @param string
-     * @return bool
-     */
-    public function setDataFile($path)
-    {
-        if (false === file_exists($path)) {
-            throw new \Exception(sprintf("%s does not exist", $path));
-        }   
-        
-        $this->path = $path;
-        
         return true;
     }
 
-    /**
-     * Set the account access key
-     * 
-     * @param string
-     * @return bool
-     */
-    public function setAccessKey($access_key)
+    public function setCacheSize(int $size): bool
     {
-        $this->logger->debug('setting: set accesskey to ' . $access_key);
-        $this->access_key = $access_key;
+        $this->cacheSize = $size;
+        return true;
+    }
+
+    public function clearCache(): bool
+    {
+        $this->cache = [];
+        return true;
+    }
+
+    public function setDataFile(string $path): bool
+    {
+        if (false === file_exists($path)) {
+            throw new \Exception(sprintf("%s does not exist", $path));
+        }
+        
+        $this->path = $path;
+        
         return true;
     }
 }

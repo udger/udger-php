@@ -4,7 +4,8 @@ namespace tests\Udger;
 
 use Udger\ParserFactory;
 
-class ParserFactoryTest extends \Codeception\TestCase\Test {
+class ParserFactoryTest extends \Codeception\TestCase\Test
+{
 
     /**
      * @var \UnitGuy

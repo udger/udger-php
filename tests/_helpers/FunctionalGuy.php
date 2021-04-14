@@ -20,7 +20,7 @@ class FunctionalGuy extends \Codeception\Actor
 {
     use _generated\FunctionalGuyActions;
 
-   /**
-    * Define custom actions here
-    */
+    /**
+     * Define custom actions here
+     */
 }

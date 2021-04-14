@@ -6,8 +6,8 @@ namespace Udger\Helper;
  *
  * @author tiborb
  */
-interface IPInterface {
-
+interface IPInterface
+{
     const IPv4 = 4;
     const IPv6 = 6;
 

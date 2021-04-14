@@ -2,21 +2,15 @@
 
 namespace Udger;
 
-/**
- *
- * @author tiborb
- */
-interface ParserInterface {
-    
-    public function account();
-    
+interface ParserInterface
+{
     public function parse();
     
-    public function setUA($ua);
+    public function setUA(?string $ua): bool;
     
-    public function setIP($ip);
+    public function setIP(string $ip): bool;
     
-    public function setAccessKey($access_key);
-    
-    public function setDataFile($path);
+    public function setDataFile(string $path): bool;
+
+    public function setCacheSize(int $size): bool;
 }
