@@ -1,3 +1,7 @@
+> ⚡ This fork is a temporary solution to use guzzle 7 support. [Upstream repository](https://github.com/udger/udger-php) has implement it, but no release was tagged yet.
+
+---
+
 # Udger client for PHP (data ver. 3)
 Local parser is very fast and accurate useragent string detection solution. Enables developers to locally install and integrate a highly-scalable product.
 We provide the detection of the devices (personal computer, tablet, Smart TV, Game console etc.), operating system, client SW type (browser, e-mail client etc.)
